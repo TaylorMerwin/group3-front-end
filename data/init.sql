@@ -29,18 +29,23 @@ CREATE TABLE BOOKS (id INT PRIMARY KEY,
         publication_year INT,
         original_title TEXT,
         title TEXT,
-        rating_avg FLOAT,
-        rating_count INT,
-        rating_1_star INT,
-        rating_2_star INT,
-        rating_3_star INT,
-        rating_4_star INT,
-        rating_5_star INT,
         image_url TEXT,
         image_small_url TEXT
     );
 
-COPY books
+    COPY books
 FROM '/docker-entrypoint-initdb.d/books.csv'
+DELIMITER ','
+CSV HEADER;
+
+CREATE TABLE RATINGS (
+    id SERIAL PRIMARY KEY,
+    book_id INT, 
+    rating INT,  
+    FOREIGN KEY (book_id) REFERENCES BOOKS(id)
+);
+
+COPY ratings(book_id, rating)
+FROM '/docker-entrypoint-initdb.d/ratings.csv'
 DELIMITER ','
 CSV HEADER;
