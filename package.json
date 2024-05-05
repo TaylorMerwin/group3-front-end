@@ -1,7 +1,7 @@
 {
-    "name": "tcss460_node_express_template",
+    "name": "group3-book-store-api",
     "version": "1.0.0",
-    "description": "Template for a node/express web service for TCSS 460",
+    "description": "Backend project for Team 3 for TCSS 460",
     "main": "dist/app.js",
     "scripts": {
         "start": "NODE_PATH=./build node build/index.js",
@@ -15,10 +15,9 @@
         "format:write": "prettier --write ."
     },
     "keywords": [],
-    "author": "Charles Bryan",
     "repository": {
         "type": "git",
-        "url": "https://github.com/cfb3/cfb3-tcss4540-labs-23sp"
+        "url": "https://github.com/TaylorMerwin/group3-book-store-api"
     },
     "engines": {
         "node": "18.16.1"
