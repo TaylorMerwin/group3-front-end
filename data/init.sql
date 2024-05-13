@@ -38,11 +38,12 @@ FROM '/docker-entrypoint-initdb.d/books.csv'
 DELIMITER ','
 CSV HEADER;
 
+
 CREATE TABLE RATINGS (
     id SERIAL PRIMARY KEY,
     book_id INT, 
     rating INT,  
-    FOREIGN KEY (book_id) REFERENCES BOOKS(id)
+    FOREIGN KEY (book_id) REFERENCES BOOKS(id) on delete cascade
 );
 
 COPY ratings(book_id, rating)
