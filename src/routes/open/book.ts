@@ -1,10 +1,12 @@
 import express, {Request, Response, Router } from "express";
 import { IBook } from "../../core/models/book.model";
-import { getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating } from "../../core/db/bookQueries";
+import { deleteBookByISBN, deleteBookById, deleteBookByTitle, getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating } from "../../core/db/bookQueries";
 import { adaptBookResult } from "../../core/bookAdapter";
 
 
 const bookRouter: Router = express.Router();
+
+//Retrievals
 
 
 // Get all books using pagination
@@ -170,6 +172,118 @@ bookRouter.get('/minrating/:minRating', async (request: Request, response: Respo
     console.error('Error executing database query: ', error);
     response.status(500).send({
       message: 'Error fetching books: ' + error,
+    });
+  }
+});
+
+// Updates
+
+// Inserts
+
+// Deletes
+
+
+/**
+ * @api {delete} /books/ISBN/:isbn Deletes books by isbn13
+ * @apiName DeleteBooksByisbn13
+ * @apiGroup Book
+ *
+ * @apiParam {String} The author of the books to delete
+ * @apiParam {String} password User's password.
+ *
+ * @apiSuccess {String} message Success message confirming the deletion of books by author.
+ * @apiError (404: Book Not Found) {String} message "Book not found"
+ */
+bookRouter.delete('/ISBN/:isbn', async (request: Request, response: Response) => {
+  try {
+    const result = await deleteBookByISBN(request.params.isbn);
+    if (result.rowCount === 1) {
+      response.send({
+          entry: 'Deleted books(s) by ISBN: ' + request.params.isbn,
+      });
+  } else if (result.rowCount > 1) {
+      response.send({
+          entry: 'Deleted ' + result.rowCount + ' book(s) by ISBN: ' + request.params.isbn,
+      });
+  } else {
+      response.status(404).send({
+          message: 'No books found by ISBN: ' + request.params.isbn,
+      });
+  }
+ } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error deleting book' + error.message,
+    });
+  }
+});
+
+/**
+ * @api {delete} /books/id/:id Deletes a book by ID
+ * @apiName DeleteBookByID
+ * @apiGroup Book
+ *
+ * @apiParam {int} id The ID of the book to delete
+ * @apiParam {String} password User's password.
+ *
+ * @apiSuccess {String} message Success message confirming the deletion of the book by ID.
+ * @apiError (404: Book Not Found) {String} message "Book not found"
+ */
+bookRouter.delete('/id/:id', async (request: Request, response: Response) => {
+  try {
+    const result = await deleteBookById(request.params.id);
+    if (result.rowCount === 1) {
+      response.send({
+          entry: 'Deleted books(s) by id: ' + request.params.id,
+      });
+  } else if (result.rowCount > 1) {
+      response.send({
+          entry: 'Deleted ' + result.rowCount + ' book(s) by id: ' + request.params.title,
+      });
+  } else {
+      response.status(404).send({
+          message: 'No books found by id: ' + request.params.title,
+      });
+  }
+ } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error deleting book' + error.message,
+    });
+  }
+});
+
+/**
+ * @api {delete} /books/title/:title Deletes a book by title
+ * @apiName DeleteBookByTitle
+ * @apiGroup Book
+ *
+ * @apiParam {int} id The ID of the book to delete
+ * @apiParam {String} password User's password.
+ *
+ * @apiSuccess {String} message Success message confirming the deletion of the book by ID.
+ * @apiError (404: Book Not Found) {String} message "Book not found"
+ */
+bookRouter.delete('/title/:title', async (request: Request, response: Response) => {
+  try {
+    const result = await deleteBookByTitle(request.params.title);
+    if (result.rowCount === 1) {
+      response.send({
+          entry: 'Deleted books(s) by Title: ' + request.params.title,
+      });
+  } else if (result.rowCount > 1) {
+      response.send({
+          entry: 'Deleted ' + result.rowCount + ' book(s) by Title: ' + request.params.title,
+      });
+  } else {
+      response.status(404).send({
+          message: 'No books found by Title: ' + request.params.title,
+      });
+  }
+ } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error deleting book' + error.message,
     });
   }
 });

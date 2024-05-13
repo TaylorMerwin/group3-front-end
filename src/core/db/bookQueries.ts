@@ -204,3 +204,41 @@ export async function getBooksByMinimumRating(minRating: number, limit: number, 
   const values = [minRating, limit, offset];
   return pool.query(theQuery, values);
 }
+
+// Updates
+
+// Inserts
+
+
+//Deletes
+
+export async function deleteBookByISBN(isbn: string): Promise<QueryResult> {
+  const theQuery = `
+  DELETE FROM books
+  WHERE isbn13 = $1
+  RETURNING *;
+  `;
+  const values = [isbn];
+  return pool.query(theQuery, values);
+}
+
+export async function deleteBookById(id: string): Promise<QueryResult> {
+  const theQuery = `
+  DELETE FROM books
+  WHERE id = $1
+  RETURNING *;
+  `;
+  const values = [id];
+  return pool.query(theQuery, values);
+}
+
+export async function deleteBookByTitle(title: string): Promise<QueryResult> {
+  const theQuery = `
+  DELETE FROM books 
+  WHERE title = $1
+  RETURNING *;`;
+  const values = [title];
+
+  return pool.query(theQuery, values);
+}
+
