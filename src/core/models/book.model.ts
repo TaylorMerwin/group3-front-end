@@ -22,3 +22,13 @@ export interface IBook {
   ratings: IRatings;
   icons: IUrlIcon;
 }
+
+export interface INewBook {
+  isbn13: string;  
+  authors: string;
+  publicationYear: number;
+  originalTitle: string;
+  title: string;
+  imageUrl: string;
+  imageSmallUrl: string;
+}

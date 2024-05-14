@@ -1,10 +1,47 @@
 import express, {Request, Response, Router } from "express";
-import { IBook } from "../../core/models/book.model";
-import { deleteBookByISBN, deleteBookById, deleteBookByTitle, getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating } from "../../core/db/bookQueries";
+import { IBook, INewBook } from "../../core/models/book.model";
+import { addNewBook, deleteBookByISBN, deleteBookById, deleteBookByTitle, getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating, updateBookAuthorsByISBN, updateBookAuthorsById, updateBookISBNByISBN, updateBookISBNById, updateBookImagesByISBN, updateBookPublicationYearByISBN, updateBookTitleByISBN, updateBookTitleById } from "../../core/db/bookQueries";
 import { adaptBookResult } from "../../core/bookAdapter";
 
 
 const bookRouter: Router = express.Router();
+
+// Inserts
+
+bookRouter.post('/', async (request: Request, response: Response) => {
+  try {
+    const newBookData: INewBook = request.body;
+        if (
+          !newBookData.isbn13 ||
+          !newBookData.authors || 
+          !newBookData.publicationYear ||
+          !newBookData.originalTitle ||
+          !newBookData.title ||
+          !newBookData.imageUrl || 
+          !newBookData.imageSmallUrl
+        ) 
+          {
+          return response.status(400).send({ message: 'Missing required book data' });
+        }
+    
+        const result = await addNewBook(newBookData);
+    
+        if (result.rowCount === 1) {
+          const insertedBook: IBook = adaptBookResult(result.rows[0]);
+          response.status(201).send({ entry: insertedBook });
+        } else {
+          response.status(500).send({ message: 'Error adding book to the database' });
+        }
+      } catch (error) {
+        if (error.code === '23505') {
+          response.status(409).send({ message: 'Book with this ISBN already exists' });
+        } else {
+          console.error('Error adding book:', error);
+          response.status(500).send({ message: 'Error adding book to the database', error });
+        }
+      }
+    });
+
 
 //Retrievals
 
@@ -177,6 +214,230 @@ bookRouter.get('/minrating/:minRating', async (request: Request, response: Respo
 });
 
 // Updates
+
+//Update title by ISBN
+bookRouter.put('/ISBN/:isbn/title', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newTitle = request.body.title;
+
+    if (!newTitle) {
+      return response.status(400).send({ message: 'New title is required' });
+    }
+    const result = await updateBookTitleByISBN(isbn, newTitle);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to title "${newTitle}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book title',
+    });
+  }
+});
+
+//Update title by ID
+bookRouter.put('/ID/:id/title', async (request: Request, response: Response) => {
+  try {
+    const id = request.params.id;
+    const newTitle = request.body.title;
+
+    if (!newTitle) {
+      return response.status(400).send({ message: 'New title is required' });
+    }
+    const result = await updateBookTitleById(id, newTitle);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ID ${id} to title "${newTitle}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ID: ${id}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book title',
+    });
+  }
+});
+
+//Update authors by ISBN
+bookRouter.put('/ISBN/:isbn/authors', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newAuthors = request.body.authors;
+
+    if (!newAuthors) {
+      return response.status(400).send({ message: 'New author(s) required' });
+    }
+    const result = await updateBookAuthorsByISBN(isbn, newAuthors);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to authors "${newAuthors}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book authors',
+    });
+  }
+});
+
+//Update authors by ID
+bookRouter.put('/ID/:id/authors', async (request: Request, response: Response) => {
+  try {
+    const id = request.params.id;
+    const newAuthors = request.body.authors;
+
+    if (!newAuthors) {
+      return response.status(400).send({ message: 'New author(s) required' });
+    }
+    const result = await updateBookAuthorsById(id, newAuthors);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ID ${id} to author(s) "${newAuthors}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ID: ${id}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book authors',
+    });
+  }
+});
+
+//Update publication year by ISBN
+bookRouter.put('/ISBN/:isbn/year', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newYear = request.body.publication_year;
+
+    if (!newYear) {
+      return response.status(400).send({ message: 'New publication year is required' });
+    }
+    const result = await updateBookPublicationYearByISBN(isbn, newYear);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to publication year ${newYear}`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book publication year',
+    });
+  }
+});
+
+//Update ISBN by ISBN
+bookRouter.put('/ISBN/:isbn/ISBN', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newIsbn = request.body.isbn;
+
+    if (!newIsbn) {
+      return response.status(400).send({ message: 'New ISBN is required' });
+    }
+    const result = await updateBookISBNByISBN(isbn, newIsbn);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to new ISBN ${newIsbn}`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book ISBN',
+    });
+  }
+});
+
+//Update ISBN by Id
+bookRouter.put('/id/:id/ISBN', async (request: Request, response: Response) => {
+  try {
+    const id = request.params.id;
+    const newIsbn = request.body.isbn;
+
+    if (!newIsbn) {
+      return response.status(400).send({ message: 'New ISBN is required' });
+    }
+    const result = await updateBookISBNById(id, newIsbn);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with id ${id} to new ISBN ${newIsbn}`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by id: ${id}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book ISBN',
+    });
+  }
+});
+
+//Update images by ISBN
+bookRouter.put('/ISBN/:isbn/image', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newImage = request.body.image;
+    const newSmallImage = request.body.small_image;
+
+    if (!newImage || !newSmallImage) {
+      return response.status(400).send({ message: 'New images are required' });
+    }
+    const result = await updateBookImagesByISBN(isbn, newImage, newSmallImage);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to new image ${newImage} and small image ${newSmallImage}`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book images',
+    });
+  }
+});
+
+
+
+
+
+
+
 
 // Inserts
 
