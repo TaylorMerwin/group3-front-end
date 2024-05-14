@@ -207,6 +207,66 @@ export async function getBooksByMinimumRating(minRating: number, limit: number, 
 
 // Updates
 
+
+export async function updateBookTitleByISBN(isbn: string, newTitle: string): Promise<QueryResult> {
+  const theQuery = `
+    UPDATE books
+    SET title = $2
+    WHERE isbn13 = $1
+    RETURNING *;
+  `;
+  const values = [isbn, newTitle];
+  return pool.query(theQuery, values);
+}
+
+export async function updateBookTitleById(id: string, newTitle: string): Promise<QueryResult> {
+  const theQuery = `
+    UPDATE books
+    SET title = $2
+    WHERE id = $1
+    RETURNING *;
+  `;
+  const values = [id, newTitle];
+  return pool.query(theQuery, values);
+}
+
+export async function updateBookAuthorsByISBN(isbn: string, newAuthors: string): Promise<QueryResult> {
+  const theQuery = `
+    UPDATE books
+    SET authors = $2
+    WHERE isbn13 = $1
+    RETURNING *;
+  `;
+  const values = [isbn, newAuthors];
+  return pool.query(theQuery, values);
+}
+
+export async function updateBookAuthorsById(id: string, newAuthors: string): Promise<QueryResult> {
+  const theQuery = `
+    UPDATE books
+    SET authors = $2
+    WHERE id = $1
+    RETURNING *;
+  `;
+  const values = [id, newAuthors];
+  return pool.query(theQuery, values);
+}
+
+export async function updateBookPublicationYearByISBN(isbn: string, newYear: number): Promise<QueryResult> {
+  const theQuery = `
+    UPDATE books
+    SET publication_year = $2
+    WHERE isbn13 = $1
+    RETURNING *;
+  `;
+  const values = [isbn, newYear];
+  return pool.query(theQuery, values);
+}
+
+
+
+
+
 // Inserts
 
 

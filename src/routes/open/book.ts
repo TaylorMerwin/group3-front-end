@@ -1,6 +1,6 @@
 import express, {Request, Response, Router } from "express";
 import { IBook } from "../../core/models/book.model";
-import { deleteBookByISBN, deleteBookById, deleteBookByTitle, getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating } from "../../core/db/bookQueries";
+import { deleteBookByISBN, deleteBookById, deleteBookByTitle, getAllBooks, getBookByISBN, getBookById, getBooksByAuthor, getBooksByMinimumRating, getBooksByPublicationYear, getBooksByRating, updateBookAuthorsByISBN, updateBookAuthorsById, updateBookTitleByISBN, updateBookTitleById } from "../../core/db/bookQueries";
 import { adaptBookResult } from "../../core/bookAdapter";
 
 
@@ -177,6 +177,119 @@ bookRouter.get('/minrating/:minRating', async (request: Request, response: Respo
 });
 
 // Updates
+
+//Update title by ISBN
+bookRouter.put('/ISBN/:isbn/title', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newTitle = request.body.title;
+
+    if (!newTitle) {
+      return response.status(400).send({ message: 'New title is required' });
+    }
+    const result = await updateBookTitleByISBN(isbn, newTitle);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to title "${newTitle}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book title',
+    });
+  }
+});
+
+//Update title by ID
+bookRouter.put('/ID/:id/title', async (request: Request, response: Response) => {
+  try {
+    const id = request.params.id;
+    const newTitle = request.body.title;
+
+    if (!newTitle) {
+      return response.status(400).send({ message: 'New title is required' });
+    }
+    const result = await updateBookTitleById(id, newTitle);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ID ${id} to title "${newTitle}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ID: ${id}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book title',
+    });
+  }
+});
+
+//Update authors by ISBN
+bookRouter.put('/ISBN/:isbn/authors', async (request: Request, response: Response) => {
+  try {
+    const isbn = request.params.isbn;
+    const newAuthors = request.body.authors;
+
+    if (!newAuthors) {
+      return response.status(400).send({ message: 'New author(s) required' });
+    }
+    const result = await updateBookAuthorsByISBN(isbn, newAuthors);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ISBN ${isbn} to authors "${newAuthors}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ISBN: ${isbn}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book authors',
+    });
+  }
+});
+
+//Update authors by ID
+bookRouter.put('/ID/:id/authors', async (request: Request, response: Response) => {
+  try {
+    const id = request.params.id;
+    const newAuthors = request.body.authors;
+
+    if (!newAuthors) {
+      return response.status(400).send({ message: 'New author(s) required' });
+    }
+    const result = await updateBookAuthorsById(id, newAuthors);
+    if (result.rowCount >= 1) {
+      response.send({
+        message: `Updated ${result.rowCount} book(s) with ID ${id} to author(s) "${newAuthors}"`,
+      });
+    } else {
+      response.status(404).send({
+        message: `No books found by ID: ${id}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error executing database query:', error);
+    response.status(500).send({
+      error: 'Error updating book authors',
+    });
+  }
+});
+
+
+
+
+
 
 // Inserts
 
