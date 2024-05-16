@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from 'express';
+import express, { NextFunction, Request, Response, Router } from 'express';
 import { IBook, INewBook } from '../../core/models/book.model';
 import {
     addNewBook,
@@ -24,6 +24,54 @@ import {
 import { adaptBookResult } from '../../core/bookAdapter';
 
 const bookRouter: Router = express.Router();
+
+// Functions
+
+function mwValidPageInfo(
+    request: Request,
+    response: Response,
+    next: NextFunction
+) {
+    const offset = request.query.offset;
+    const limit = request.query.limit;
+    if (!Number.isNaN(Number(offset)) && !Number.isNaN(Number(limit))) {
+        next();
+    } else if (Number.isNaN(Number(offset))) {
+        console.error('Offset not a number!');
+        response.status(400).send({
+            message: 'Provided offset is not a number; see documentation!',
+        });
+    } else {
+        console.error('Limit not a number!');
+        response.status(400).send({
+            message: 'Provided limit is not a number; see documentation!',
+        });
+    }
+}
+
+function mwIsNumber(type: string) {
+    return function (request: Request, response: Response, next: NextFunction) {
+        let value = 'default';
+        if (type == 'ISBN') {
+            value = request.params.isbn;
+        } else if (type == 'year') {
+            value = request.params.year;
+        } else if (type == 'ID') {
+            value = request.params.id;
+        }
+        if (Number.isNaN(Number(value))) {
+            console.error(type + ' is not a number!');
+            response.status(400).send({
+                message:
+                    'Provided ' +
+                    type +
+                    ' type is not a number; see documentation!',
+            });
+        } else {
+            next();
+        }
+    };
+}
 
 // Inserts
 
@@ -85,32 +133,37 @@ bookRouter.post('/', async (request: Request, response: Response) => {
  * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books on the specified page in IBook format
- * @apiSuccess {PaginationInformation} information regarding the user's page matching the PaginationInformation interface TBA
  *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
  * @apiError (404: No Books) {text} message "No books found"
  */
 
-bookRouter.get('/', async (request: Request, response: Response) => {
-    try {
-        const limit = parseInt(request.query.limit as string, 10) || 10;
-        const offset = parseInt(request.query.offset as string, 10) || 0;
+bookRouter.get(
+    '/',
+    mwValidPageInfo,
+    async (request: Request, response: Response) => {
+        try {
+            const limit = parseInt(request.query.limit as string, 10) || 10;
+            const offset = parseInt(request.query.offset as string, 10) || 0;
 
-        const result = await getAllBooks(limit, offset);
+            const result = await getAllBooks(limit, offset);
 
-        if (result.rowCount > 0) {
-            const books: IBook[] = result.rows.map(adaptBookResult);
+            if (result.rowCount > 0) {
+                const books: IBook[] = result.rows.map(adaptBookResult);
 
-            response.send({ entries: books });
-        } else {
-            response.status(404).send({ message: 'No books found' });
+                response.send({ entries: books });
+            } else {
+                response.status(404).send({ message: 'No books found' });
+            }
+        } catch (error) {
+            console.error('Error executing database query: ', error);
+            response.status(500).send({
+                message: 'Error fetching book(s): ' + error,
+            });
         }
-    } catch (error) {
-        console.error('Error executing database query: ', error);
-        response.status(500).send({
-            message: 'Error fetching book(s): ' + error,
-        });
     }
-});
+);
 
 // Get book by ISBN
 /**
@@ -125,32 +178,36 @@ bookRouter.get('/', async (request: Request, response: Response) => {
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given ISBN in IBook format
  *
- * @apiError (400: Invalid ISBN) {text} message "The ISBN is invalid (negative or wrong number of digits)!" TBA
+ * @apiError (400: Invalid ISBN) {text} message "Provided ISBN is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "Book not found"
  */
 
-bookRouter.get('/ISBN/:isbn', async (request: Request, response: Response) => {
-    try {
-        const result = await getBookByISBN(request.params.isbn);
+bookRouter.get(
+    '/ISBN/:isbn',
+    mwIsNumber('ISBN'),
+    async (request: Request, response: Response) => {
+        try {
+            const result = await getBookByISBN(request.params.isbn);
 
-        if (result.rowCount === 1) {
-            const book: IBook = adaptBookResult(result.rows[0]);
-            response.send({
-                entry: book,
-            });
-        } else {
-            console.log('Book not found for ISBN:', request.params.isbn);
-            response.status(404).send({
-                message: 'Book not found',
+            if (result.rowCount === 1) {
+                const book: IBook = adaptBookResult(result.rows[0]);
+                response.send({
+                    entry: book,
+                });
+            } else {
+                console.log('Book not found for ISBN:', request.params.isbn);
+                response.status(404).send({
+                    message: 'Book not found',
+                });
+            }
+        } catch (error) {
+            console.error('Error executing database query:', error);
+            response.status(500).send({
+                message: 'Error fetching book' + error,
             });
         }
-    } catch (error) {
-        console.error('Error executing database query:', error);
-        response.status(500).send({
-            message: 'Error fetching book' + error,
-        });
     }
-});
+);
 
 /**
  * @api {get} /books/year/:year
@@ -164,32 +221,37 @@ bookRouter.get('/ISBN/:isbn', async (request: Request, response: Response) => {
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given publishing year in IBook format
  *
+ * @apiError (400: Invalid year) {text} message "Provided year is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found"
  */
-bookRouter.get('/year/:year', async (request: Request, response: Response) => {
-    try {
-        const result = await getBooksByPublicationYear(
-            parseInt(request.params.year)
-        );
+bookRouter.get(
+    '/year/:year',
+    mwIsNumber('year'),
+    async (request: Request, response: Response) => {
+        try {
+            const result = await getBooksByPublicationYear(
+                parseInt(request.params.year)
+            );
 
-        if (result.rowCount > 0) {
-            const books: IBook[] = result.rows.map(adaptBookResult);
-            response.send({
-                entries: books,
-            });
-        } else {
-            console.log('No books found for year: ', request.params.year);
-            response.status(404).send({
-                message: 'No books found',
+            if (result.rowCount > 0) {
+                const books: IBook[] = result.rows.map(adaptBookResult);
+                response.send({
+                    entries: books,
+                });
+            } else {
+                console.log('No books found for year: ', request.params.year);
+                response.status(404).send({
+                    message: 'No books found',
+                });
+            }
+        } catch (error) {
+            console.error('Error executing database query: ', error);
+            response.status(500).send({
+                message: 'Error fetching books: ' + error,
             });
         }
-    } catch (error) {
-        console.error('Error executing database query: ', error);
-        response.status(500).send({
-            message: 'Error fetching books: ' + error,
-        });
     }
-});
+);
 
 /**
  * @api {get} /books/author/:authorName
@@ -241,30 +303,37 @@ bookRouter.get(
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given ID in IBook format
  *
- * @apiError (400: Invalid ID) {text} message "The ID is a nonpositive number!" TBA
+ * @apiError (400: Invalid ID) {text} message "Provided ID is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "Book not found"
  */
-bookRouter.get('/id/:id', async (request: Request, response: Response) => {
-    try {
-        const result = await getBookById(request.params.id);
-        if (result.rowCount === 1) {
-            const book: IBook = adaptBookResult(result.rows[0]);
-            response.send({
-                entry: book,
-            });
-        } else {
-            console.log('Book with specified id not found:', request.params.id);
-            response.status(404).send({
-                message: 'Book not found',
+bookRouter.get(
+    '/id/:id',
+    mwIsNumber('ID'),
+    async (request: Request, response: Response) => {
+        try {
+            const result = await getBookById(request.params.id);
+            if (result.rowCount === 1) {
+                const book: IBook = adaptBookResult(result.rows[0]);
+                response.send({
+                    entry: book,
+                });
+            } else {
+                console.log(
+                    'Book with specified id not found:',
+                    request.params.id
+                );
+                response.status(404).send({
+                    message: 'Book not found',
+                });
+            }
+        } catch (error) {
+            console.error('Error executing database query: ', error);
+            response.status(500).send({
+                message: 'Error fetching book: ' + error,
             });
         }
-    } catch (error) {
-        console.error('Error executing database query: ', error);
-        response.status(500).send({
-            message: 'Error fetching book: ' + error,
-        });
     }
-});
+);
 
 //Get books by rating (rounds to the nearest integer)
 // Default to 10 per page
@@ -283,21 +352,23 @@ bookRouter.get('/id/:id', async (request: Request, response: Response) => {
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books within the given rating range in IBook format
  *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found for this rating"
+ * @apiError (400: Invalid Rating) {text} message "Invalid rating. Must be between 1 and 5."
  */
 bookRouter.get(
     '/rating/:rating',
+    mwValidPageInfo,
     async (request: Request, response: Response) => {
         try {
             const rating = parseInt(request.params.rating, 10);
             const limit = parseInt(request.query.limit as string, 10) || 10;
             const offset = parseInt(request.query.offset as string, 10) || 0;
             if (isNaN(rating) || rating < 1 || rating > 5) {
-                return response
-                    .status(400)
-                    .send({
-                        message: 'Invalid rating. Must be between 1 and 5.',
-                    });
+                return response.status(400).send({
+                    message: 'Invalid rating. Must be between 1 and 5.',
+                });
             }
             const result = await getBooksByRating(rating, limit, offset);
             if (result.rowCount > 0) {
@@ -335,20 +406,20 @@ bookRouter.get(
  * @apiSuccess {IBook[]} entries the aggregate of all books with an average rating over <code>minRating</code>
  *
  * @apiError (404: No Books Match) {text} message "No books found for this rating"
+ * @apiError (400: Invalid Rating) {text} message "Invalid rating. Must be between 1 and 5."
  */
 bookRouter.get(
     '/minrating/:minRating',
+    mwValidPageInfo,
     async (request: Request, response: Response) => {
         try {
             const minRating = parseInt(request.params.minRating, 10);
             const limit = parseInt(request.query.limit as string, 10) || 10;
             const offset = parseInt(request.query.offset as string, 10) || 0;
             if (isNaN(minRating) || minRating < 1 || minRating > 5) {
-                return response
-                    .status(400)
-                    .send({
-                        message: 'Invalid rating. Must be between 1 and 5.',
-                    });
+                return response.status(400).send({
+                    message: 'Invalid rating. Must be between 1 and 5.',
+                });
             }
             const result = await getBooksByMinimumRating(
                 minRating,
