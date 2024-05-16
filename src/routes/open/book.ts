@@ -499,11 +499,11 @@ bookRouter.delete('/id/:id', async (request: Request, response: Response) => {
       });
   } else if (result.rowCount > 1) {
       response.send({
-          entry: 'Deleted ' + result.rowCount + ' book(s) by id: ' + request.params.title,
+          entry: 'Deleted ' + result.rowCount + ' book(s) by id: ' + request.params.id,
       });
   } else {
       response.status(404).send({
-          message: 'No books found by id: ' + request.params.title,
+          message: 'No books found by id: ' + request.params.id,
       });
   }
  } catch (error) {
