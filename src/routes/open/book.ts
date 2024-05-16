@@ -128,12 +128,10 @@ bookRouter.post('/', async (request: Request, response: Response) => {
  *
  * @apiDescription Request to retrieve a page of book entries
  *
- *
  * @apiQuery {number} limit the page of results that should be retrieved
  * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books on the specified page in IBook format
- *
  * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
  * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
  * @apiError (404: No Books) {text} message "No books found"
@@ -173,11 +171,9 @@ bookRouter.get(
  *
  * @apiDescription Request to filter and retrieve books with a given ISBN
  *
- *
  * @apiParam {number} iSBN the ISBN that all returned books will share
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given ISBN in IBook format
- *
  * @apiError (400: Invalid ISBN) {text} message "Provided ISBN is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "Book not found"
  */
@@ -216,11 +212,9 @@ bookRouter.get(
  *
  * @apiDescription Request to filter and retreive books with a given publishing year
  *
- *
  * @apiParam {number} year the year that all returned books will have as their publishing year
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given publishing year in IBook format
- *
  * @apiError (400: Invalid year) {text} message "Provided year is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found"
  */
@@ -260,12 +254,11 @@ bookRouter.get(
  *
  * @apiDescription Request to retrieve all books that contain the given pattern in their authors field
  *
- *
  * @apiParam {text} authorName pattern to be searched for in each book's author's field
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books that contain the given pattern in their authors field in IBook format
- *
  * @apiError (404: No Books Match) {text} message "No books found for this author"
+ * @apiError (500: Database Error) {text} message "Error fetching books: " + error
  */
 
 bookRouter.get(
@@ -298,13 +291,12 @@ bookRouter.get(
  *
  * @apiDescription Request to retrieve the book with the given ID
  *
- *
  * @apiParam {number} id the ID of the book that should be returned
- *
+ * 
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given ID in IBook format
- *
  * @apiError (400: Invalid ID) {text} message "Provided ID is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "Book not found"
+ * @apiError (500: Database Error) {text} message "Error fetching book: " + error
  */
 bookRouter.get(
     '/id/:id',
@@ -442,10 +434,21 @@ bookRouter.get(
         }
     }
 );
-
 // Updates
 
-//Update title by ISBN
+/**
+* @api {put} /books/ISBN/:isbn/title Update title by ISBN
+* @apiName UpdateTitleByISBN
+* @apiGroup Book
+*
+* @apiParam {String} The new title of book to update
+* @apiParam {number} ISBN to find the book
+*
+* @apiSuccess {String} message "Updated {result.rowCount} book(s) with ISBN {isbn} to title "{newTitle}"
+* @apiError (400: No New Title) {String} message "New title is required"
+* @apiError (404: Book Not Found) {String} message "No books found by ISBN"
+* @apiError (500: Database Error) {String} message "Error updating book title"
+*/
 bookRouter.put(
     '/ISBN/:isbn/title',
     async (request: Request, response: Response) => {
@@ -477,7 +480,19 @@ bookRouter.put(
     }
 );
 
-//Update title by ID
+/**
+ * @api {put} /books/ID/:id/title Update title by ID
+ * @apiName UpdateTitleByID
+ * @apiGroup Book
+ * 
+ * @apiParam {String} The new title of book to update
+ * @apiParam {number} ID to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with ID {id} to title "{newTitle}"
+ * @apiError (400: No New Title) {String} message "New title is required"
+ * @apiError (404: Book Not Found) {String} message "No books found by ID"
+ * @apiError (500: Database Error) {String} message "Error updating book title"
+ */
 bookRouter.put(
     '/ID/:id/title',
     async (request: Request, response: Response) => {
@@ -509,7 +524,18 @@ bookRouter.put(
     }
 );
 
-//Update authors by ISBN
+/**
+* @api {put} /books/ID/:id/title Update title by ID
+* @apiName UpdateTitleByID
+* @apiGroup Book
+*
+* @apiParam {String} The new title of book to update
+* @apiParam {number} ID to find the book
+*
+* @apiSuccess {String} message "Updated {result.rowCount} book(s) with ID {id} to title "{newTitle}"
+* @apiError (400: No New Title) {String} message "New title is required"
+* @apiError (404: Book Not Found) {String} message "No books found by ID"
+*/
 bookRouter.put(
     '/ISBN/:isbn/authors',
     async (request: Request, response: Response) => {
@@ -541,7 +567,19 @@ bookRouter.put(
     }
 );
 
-//Update authors by ID
+/**
+ * @api {put} /books/ID/:id/authors Update authors by ID
+ * @apiName UpdateAuthorsByID
+ * @apiGroup Book
+ * 
+ * @apiParam {String} The new authors of book to update
+ * @apiParam {number} ID to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with ID {id} to authors "{newAuthors}"
+ * @apiError (400: No New Authors) {String} message "New author(s) required"
+ * @apiError (404: Book Not Found) {String} message "No books found by ID"
+ * @apiError (500: Database Error) {String} message "Error updating book authors"
+ */
 bookRouter.put(
     '/ID/:id/authors',
     async (request: Request, response: Response) => {
@@ -573,7 +611,19 @@ bookRouter.put(
     }
 );
 
-//Update publication year by ISBN
+/**
+ * @api {put} /books/ISBN/:isbn/year Update publication year by ISBN
+ * @apiName UpdatePublicationYearByISBN
+ * @apiGroup Book
+ * 
+ * @apiParam {number} The new publication year of book to update
+ * @apiParam {number} ISBN to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with ISBN {isbn} to publication year {newYear}"
+ * @apiError (400: No New Publication Year) {String} message "New publication year is required"
+ * @apiError (404: Book Not Found) {String} message "No books found by ISBN"
+ * @apiError (500: Database Error) {String} message "Error updating book publication year"
+ */
 bookRouter.put(
     '/ISBN/:isbn/year',
     async (request: Request, response: Response) => {
@@ -605,7 +655,19 @@ bookRouter.put(
     }
 );
 
-//Update ISBN by ISBN
+/**
+ * @api {put} /books/ISBN/:isbn/ISBN Update ISBN by ISBN
+ * @apiName UpdateISBNByISBN
+ * @apiGroup Book
+ * 
+ * @apiParam {number} The new ISBN of book to update
+ * @apiParam {number} ISBN to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with ISBN {isbn} to new ISBN {newIsbn}"
+ * @apiError (400: No New ISBN) {String} message "New ISBN is required"
+ * @apiError (404: Book Not Found) {String} message "No books found by ISBN"
+ * @apiError (500: Database Error) {String} message "Error updating book ISBN"
+ */
 bookRouter.put(
     '/ISBN/:isbn/ISBN',
     async (request: Request, response: Response) => {
@@ -637,7 +699,19 @@ bookRouter.put(
     }
 );
 
-//Update ISBN by Id
+/**
+ * @api {put} /books/id/:id/ISBN Update ISBN by ID
+ * @apiName UpdateISBNByID
+ * @apiGroup Book
+ * 
+ * @apiParam {number} The new ISBN of book to update
+ * @apiParam {number} ID to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with id {id} to new ISBN {newIsbn}"
+ * @apiError (400: No New ISBN) {String} message "New ISBN is required"
+ * @apiError (404: Book Not Found) {String} message "No books found by id"
+ * @apiError (500: Database Error) {String} message "Error updating book ISBN"
+ */
 bookRouter.put('/id/:id/ISBN', async (request: Request, response: Response) => {
     try {
         const id = request.params.id;
@@ -666,7 +740,20 @@ bookRouter.put('/id/:id/ISBN', async (request: Request, response: Response) => {
     }
 });
 
-//Update images by ISBN
+/**
+ * @api {put} /books/ISBN/:isbn/image Update images by ISBN
+ * @apiName UpdateImagesByISBN
+ * @apiGroup Book
+ * 
+ * @apiParam {String} The new image of book to update
+ * @apiParam {String} The new small image of book to update
+ * @apiParam {number} ISBN to find the book
+ * 
+ * @apiSuccess {String} message "Updated {result.rowCount} book(s) with ISBN {isbn} to new image {newImage} and small image {newSmallImage}"
+ * @apiError (400: No New Images) {String} message "New images are required"
+ * @apiError (404: Book Not Found) {String} message "No books found by ISBN"
+ * @apiError (500: Database Error) {String} message "Error updating book images"
+ */
 bookRouter.put(
     '/ISBN/:isbn/image',
     async (request: Request, response: Response) => {
@@ -702,9 +789,6 @@ bookRouter.put(
         }
     }
 );
-
-// Inserts
-
 // Deletes
 
 /**
