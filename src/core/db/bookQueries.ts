@@ -70,28 +70,26 @@ export async function getBooksByPublicationYear(
     limit: string
 ): Promise<QueryResult> {
     const theQuery = `
-    SELECT *
-    FROM
-      (SELECT 
-        b.isbn13,
-        b.authors,
-        b.publication_year,
-        b.original_title,
-        b.title,
-        b.image_url,
-        b.image_small_url,
-        COUNT(r.rating) as rating_count, 
-        AVG(r.rating) as average_rating,
-        SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) as rating_1_star,
-        SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) as rating_2_star,
-        SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) as rating_3_star,
-        SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) as rating_4_star,
-        SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) as rating_5_star
-      FROM books b
-      LEFT JOIN ratings r ON b.id = r.book_id
-      WHERE b.publication_year = $1
-      GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.title, b.image_url, b.image_small_url
-      ORDER BY b.id ASC)
+    SELECT 
+      b.isbn13,
+      b.authors,
+      b.publication_year,
+      b.original_title,
+      b.title,
+      b.image_url,
+      b.image_small_url,
+      COUNT(r.rating) as rating_count, 
+      AVG(r.rating) as average_rating,
+      SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) as rating_1_star,
+      SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) as rating_2_star,
+      SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) as rating_3_star,
+      SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) as rating_4_star,
+      SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) as rating_5_star
+    FROM books b
+    LEFT JOIN ratings r ON b.id = r.book_id
+    WHERE b.publication_year = $1
+    GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.title, b.image_url, b.image_small_url
+    ORDER BY b.id ASC
     OFFSET $2
     LIMIT $3;
   `;
@@ -109,28 +107,26 @@ export async function getBooksByAuthor(
     const searchPattern = `%${authorName}%`;
     const values = [searchPattern, offset, limit];
     const theQuery = `
-    SELECT *
-    FROM
-      (SELECT 
-        b.isbn13,
-        b.authors,
-        b.publication_year,
-        b.original_title,
-        b.title,
-        b.image_url,
-        b.image_small_url,
-        COUNT(r.rating) as rating_count, 
-        AVG(r.rating) as average_rating,
-        SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) as rating_1_star,
-        SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) as rating_2_star,
-        SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) as rating_3_star,
-        SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) as rating_4_star,
-        SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) as rating_5_star
-      FROM books b
-      LEFT JOIN ratings r ON b.id = r.book_id
-      WHERE b.authors LIKE $1
-      GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.title, b.image_url, b.image_small_url
-      ORDER BY b.id ASC)
+    SELECT 
+      b.isbn13,
+      b.authors,
+      b.publication_year,
+      b.original_title,
+      b.title,
+      b.image_url,
+      b.image_small_url,
+      COUNT(r.rating) as rating_count, 
+      AVG(r.rating) as average_rating,
+      SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) as rating_1_star,
+      SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) as rating_2_star,
+      SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) as rating_3_star,
+      SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) as rating_4_star,
+      SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) as rating_5_star
+    FROM books b
+    LEFT JOIN ratings r ON b.id = r.book_id
+    WHERE b.authors LIKE $1
+    GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.title, b.image_url, b.image_small_url
+    ORDER BY b.id ASC
     OFFSET $2
     LIMIT $3;
   `;
