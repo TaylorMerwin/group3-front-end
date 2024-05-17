@@ -218,19 +218,28 @@ bookRouter.get(
  *
  *
  * @apiParam {number} year the year that all returned books will have as their publishing year
+ * @apiQuery {number} limit the page of results that should be retrieved
+ * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given publishing year in IBook format
  *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
  * @apiError (400: Invalid year) {text} message "Provided year is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found"
  */
 bookRouter.get(
     '/year/:year',
+    mwValidPageInfo,
     mwIsNumber('year'),
     async (request: Request, response: Response) => {
         try {
+            const offset = request.query.offset || 0;
+            const limit = request.query.limit || 10;
             const result = await getBooksByPublicationYear(
-                parseInt(request.params.year)
+                parseInt(request.params.year),
+                String(offset),
+                String(limit)
             );
 
             if (result.rowCount > 0) {
@@ -262,18 +271,29 @@ bookRouter.get(
  *
  *
  * @apiParam {text} authorName pattern to be searched for in each book's author's field
+ * @apiQuery {number} limit the page of results that should be retrieved
+ * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books that contain the given pattern in their authors field in IBook format
  *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found for this author"
  */
 
 bookRouter.get(
     '/author/:authorName',
+    mwValidPageInfo,
     async (request: Request, response: Response) => {
         try {
             const authorName = request.params.authorName;
-            const result = await getBooksByAuthor(authorName);
+            const offset = request.query.offset || 0;
+            const limit = request.query.limit || 10;
+            const result = await getBooksByAuthor(
+                authorName,
+                String(offset),
+                String(limit)
+            );
             if (result.rowCount > 0) {
                 const books: IBook[] = result.rows.map(adaptBookResult);
                 response.send({ entries: books });
