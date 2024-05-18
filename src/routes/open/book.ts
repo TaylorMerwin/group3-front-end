@@ -36,16 +36,33 @@ function mwValidPageInfo(
     const offset = request.query.offset || 0;
     const limit = request.query.limit || 10;
     if (!Number.isNaN(Number(offset)) && !Number.isNaN(Number(limit))) {
-        next();
+        if (Number(offset) < 0) {
+            console.error('Offset not a number!');
+            response.status(400).send({
+                message:
+                    'Provided offset is not a non-negative number; see documentation!',
+            });
+        }
+        if (Number(limit) < 0) {
+            console.error('Limit not a number!');
+            response.status(400).send({
+                message:
+                    'Provided limit is not a non-negative number; see documentation!',
+            });
+        } else {
+            next();
+        }
     } else if (Number.isNaN(Number(offset))) {
         console.error('Offset not a number!');
         response.status(400).send({
-            message: 'Provided offset is not a number; see documentation!',
+            message:
+                'Provided offset is not a non-negative number; see documentation!',
         });
     } else {
         console.error('Limit not a number!');
         response.status(400).send({
-            message: 'Provided limit is not a number; see documentation!',
+            message:
+                'Provided limit is not a non-negative number; see documentation!',
         });
     }
 }
@@ -133,8 +150,8 @@ bookRouter.post('/', async (request: Request, response: Response) => {
  * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books on the specified page in IBook format
- * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
- * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
  * @apiError (404: No Books) {text} message "No books found"
  */
 
@@ -206,23 +223,29 @@ bookRouter.get(
     }
 );
 
-
-
 // Get book by Title
 /**
- * @api {get} /books/Title:iSBN
- * @apiName GetBookByISBN
+ * @api {get} /books/title/
+ * @apiName GetBookByTitle
  * @apiGroup Books
  *
- * @apiDescription Request to filter and retrieve books with a given ISBN
+ * @apiDescription Request to retrieve all books that contain the given pattern in their title field
  *
- * @apiParam {number} iSBN the ISBN that all returned books will share
+ * @apiParam {text} title pattern to be searched for in each book's title field
+ * @apiQuery {number} limit the page of results that should be retrieved
+ * @apiQuery {number} offset the number of results per page
  *
- * @apiSuccess {IBook[]} entries the aggregate of all books with the given ISBN in IBook format
- * @apiError (400: Invalid ISBN) {text} message "Provided ISBN is not a number; see documentation!"
- * @apiError (404: No Books Match) {text} message "Book not found"
+ * @apiSuccess {IBook[]} entries the aggregate of all books that contain the given pattern in their title field in IBook format
+ *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
+ * @apiError (404: No Books Match) {text} message "No books found for this title"
+ * @apiError (500: Database Error) {text} message "Error fetching books: " + error
  */
-bookRouter.get('/title/', mwValidPageInfo, async (request: Request, response: Response) => {
+bookRouter.get(
+    '/title/',
+    mwValidPageInfo,
+    async (request: Request, response: Response) => {
         try {
             const title = request.body.title;
             const offset = request.query.offset || 0;
@@ -262,8 +285,8 @@ bookRouter.get('/title/', mwValidPageInfo, async (request: Request, response: Re
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with the given publishing year in IBook format
  *
- * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
- * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
  * @apiError (400: Invalid year) {text} message "Provided year is not a number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found"
  */
@@ -308,14 +331,14 @@ bookRouter.get(
  *
  * @apiDescription Request to retrieve all books that contain the given pattern in their authors field
  *
- * @apiParam {text} authorName pattern to be searched for in each book's author's field
+ * @apiParam {text} authorName pattern to be searched for in each book's author field
  * @apiQuery {number} limit the page of results that should be retrieved
  * @apiQuery {number} offset the number of results per page
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books that contain the given pattern in their authors field in IBook format
  *
- * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
- * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found for this author"
  * @apiError (500: Database Error) {text} message "Error fetching books: " + error
  */
@@ -410,8 +433,8 @@ bookRouter.get(
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books within the given rating range in IBook format
  *
- * @apiError (400: Invalid offset) {text} message "Provided offset is not a number; see documentation!"
- * @apiError (400: Invalid limit) {text} message "Provided limit is not a number; see documentation!"
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found for this rating"
  * @apiError (400: Invalid Rating) {text} message "Invalid rating. Must be between 1 and 5."
  */
@@ -463,6 +486,8 @@ bookRouter.get(
  *
  * @apiSuccess {IBook[]} entries the aggregate of all books with an average rating over <code>minRating</code>
  *
+ * @apiError (400: Invalid offset) {text} message "Provided offset is not a non-negative number; see documentation!"
+ * @apiError (400: Invalid limit) {text} message "Provided limit is not a non-negative number; see documentation!"
  * @apiError (404: No Books Match) {text} message "No books found for this rating"
  * @apiError (400: Invalid Rating) {text} message "Invalid rating. Must be between 1 and 5."
  */
