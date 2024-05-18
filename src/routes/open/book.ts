@@ -95,8 +95,8 @@ function mwIsNumber(type: string) {
 /**
  * @api {post} /books Add a new book
  * @apiName AddBook
- * @apiGroup Books
- * 
+ * @apiGroup Book
+ *
  * @apiParam {String} isbn13 The ISBN13 of the book
  * @apiParam {String} authors The authors of the book
  * @apiParam {String} publicationYear The publication year of the book
@@ -104,12 +104,12 @@ function mwIsNumber(type: string) {
  * @apiParam {String} title The title of the book
  * @apiParam {String} imageUrl The image URL of the book
  * @apiParam {String} imageSmallUrl The small image URL of the book
- * 
+ *
  * @apiSuccess {IBook} entry The book that was added
  * @apiError (400: Missing Required Data) {String} message "Missing required book data"
  * @apiError (409: Book Already Exists) {String} message "Book with this ISBN already exists"
  * @apiError (500: Database Error) {String} message "Failed to add book"
- * 
+ *
  */
 
 bookRouter.post('/', async (request: Request, response: Response) => {
@@ -155,13 +155,13 @@ bookRouter.post('/', async (request: Request, response: Response) => {
 
 //Retrievals
 
-// Get all books using pagination
+// Get all books using pagination Get page of books
 // Default to 10 books per page
 // Default to start from the beginning
 /**
  * @api {get} /books
  * @apiName GetPageOfBooks
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to retrieve a page of book entries
  *
@@ -202,9 +202,9 @@ bookRouter.get(
 
 // Get book by ISBN
 /**
- * @api {get} /books/ISBN:iSBN
+ * @api {get} /books/ISBN:iSBN Get books by ISBN
  * @apiName GetBookByISBN
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to filter and retrieve books with a given ISBN
  *
@@ -244,9 +244,9 @@ bookRouter.get(
 
 // Get book by Title
 /**
- * @api {get} /books/title/
+ * @api {get} /books/title/ Get books by title
  * @apiName GetBookByTitle
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to retrieve all books that contain the given pattern in their title field
  *
@@ -292,9 +292,9 @@ bookRouter.get(
 );
 
 /**
- * @api {get} /books/year/:year
+ * @api {get} /books/year/:year Get books by year
  * @apiName GetBookByPublishingYear
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to filter and retreive books with a given publishing year
  *
@@ -344,9 +344,9 @@ bookRouter.get(
 );
 
 /**
- * @api {get} /books/author/:authorName
+ * @api {get} /books/author/:authorName Get books by author
  * @apiName GetBookByAuthor
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to retrieve all books that contain the given pattern in their authors field
  *
@@ -393,9 +393,9 @@ bookRouter.get(
 );
 
 /**
- * @api {get} /books/id/:id
+ * @api {get} /books/id/:id Get books by ID
  * @apiName GetBookByID
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to retrieve the book with the given ID
  *
@@ -439,9 +439,9 @@ bookRouter.get(
 // Default to 10 per page
 // Default to start from beginning
 /**
- * @api {get} /books/rating/:rating
+ * @api {get} /books/rating/:rating Get books by rating
  * @apiName GetBookByRating
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to filter and retrieve books with whose ratings fall in the bounds stars - .5 to stars + .5
  *
@@ -492,14 +492,14 @@ bookRouter.get(
 // Default to 10 per page
 // Default to start from beginning
 /**
- * @api {get} /books/minrating/:minRating
+ * @api {get} /books/minrating/:minRating Get books above minimum rating
  * @apiName GetBooksOverRating
- * @apiGroup Books
+ * @apiGroup Book
  *
  * @apiDescription Request to retrieve books with an average rating over a given star rating
  *
  *
- * @apiParam {number} rating the minimum star rating allowed for retrieved books
+ * @apiParam {number} minRating the minimum star rating allowed for retrieved books
  * @apiQuery {number} limit the page of results that should be retrieved
  * @apiQuery {number} offset the number of results per page
  *
