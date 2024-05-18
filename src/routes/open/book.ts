@@ -42,8 +42,7 @@ function mwValidPageInfo(
                 message:
                     'Provided offset is not a non-negative number; see documentation!',
             });
-        }
-        if (Number(limit) < 0) {
+        } else if (Number(limit) < 0) {
             console.error('Limit not a number!');
             response.status(400).send({
                 message:
