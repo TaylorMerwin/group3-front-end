@@ -12,6 +12,7 @@ import {
     getBooksByMinimumRating,
     getBooksByPublicationYear,
     getBooksByRating,
+    getBooksByTitle,
     updateBookAuthorsByISBN,
     updateBookAuthorsById,
     updateBookISBNByISBN,
@@ -200,6 +201,49 @@ bookRouter.get(
             console.error('Error executing database query:', error);
             response.status(500).send({
                 message: 'Error fetching book' + error,
+            });
+        }
+    }
+);
+
+
+
+// Get book by Title
+/**
+ * @api {get} /books/Title:iSBN
+ * @apiName GetBookByISBN
+ * @apiGroup Books
+ *
+ * @apiDescription Request to filter and retrieve books with a given ISBN
+ *
+ * @apiParam {number} iSBN the ISBN that all returned books will share
+ *
+ * @apiSuccess {IBook[]} entries the aggregate of all books with the given ISBN in IBook format
+ * @apiError (400: Invalid ISBN) {text} message "Provided ISBN is not a number; see documentation!"
+ * @apiError (404: No Books Match) {text} message "Book not found"
+ */
+bookRouter.get('/title/', mwValidPageInfo, async (request: Request, response: Response) => {
+        try {
+            const title = request.body.title;
+            const offset = request.query.offset || 0;
+            const limit = request.query.limit || 10;
+            const result = await getBooksByTitle(
+                title,
+                String(offset),
+                String(limit)
+            );
+            if (result.rowCount > 0) {
+                const books: IBook[] = result.rows.map(adaptBookResult);
+                response.send({ entries: books });
+            } else {
+                response
+                    .status(404)
+                    .send({ message: 'No books found for this title' });
+            }
+        } catch (error) {
+            console.error('Error executing database query: ', error);
+            response.status(500).send({
+                message: 'Error fetching books: ' + error,
             });
         }
     }

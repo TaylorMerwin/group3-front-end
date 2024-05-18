@@ -63,6 +63,38 @@ GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.titl
     return pool.query(theQuery, values);
 }
 
+export async function getBooksByTitle(title: string, offset: string, limit: string): Promise<QueryResult> {
+    const theQuery = `
+    SELECT *
+    FROM
+      (SELECT 
+        b.isbn13,
+        b.authors,
+        b.publication_year,
+        b.original_title,
+        b.title,
+        b.image_url,
+        b.image_small_url,
+        COUNT(r.rating) as rating_count, 
+        AVG(r.rating) as average_rating,
+        SUM(CASE WHEN r.rating = 1 THEN 1 ELSE 0 END) as rating_1_star,
+        SUM(CASE WHEN r.rating = 2 THEN 1 ELSE 0 END) as rating_2_star,
+        SUM(CASE WHEN r.rating = 3 THEN 1 ELSE 0 END) as rating_3_star,
+        SUM(CASE WHEN r.rating = 4 THEN 1 ELSE 0 END) as rating_4_star,
+        SUM(CASE WHEN r.rating = 5 THEN 1 ELSE 0 END) as rating_5_star
+      FROM books b
+      LEFT JOIN ratings r ON b.id = r.book_id
+      WHERE b.title LIKE $1
+      GROUP BY b.id, b.isbn13, b.authors, b.publication_year, b.original_title, b.title, b.image_url, b.image_small_url
+      ORDER BY b.id ASC)
+    OFFSET $2
+    LIMIT $3;
+  `;
+
+  const theValues = [title, offset || 0, limit || 10];
+    return pool.query(theQuery, theValues);
+}
+
 // Function to get books by publication year
 export async function getBooksByPublicationYear(
     year: number,
