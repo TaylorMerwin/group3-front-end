@@ -33,8 +33,8 @@ function mwValidPageInfo(
     response: Response,
     next: NextFunction
 ) {
-    const offset = request.query.offset;
-    const limit = request.query.limit;
+    const offset = request.query.offset || 0;
+    const limit = request.query.limit || 10;
     if (!Number.isNaN(Number(offset)) && !Number.isNaN(Number(limit))) {
         next();
     } else if (Number.isNaN(Number(offset))) {
