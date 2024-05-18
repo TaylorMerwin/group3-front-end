@@ -92,6 +92,26 @@ function mwIsNumber(type: string) {
 
 // Inserts
 
+/**
+ * @api {post} /books Add a new book
+ * @apiName AddBook
+ * @apiGroup Books
+ * 
+ * @apiParam {String} isbn13 The ISBN13 of the book
+ * @apiParam {String} authors The authors of the book
+ * @apiParam {String} publicationYear The publication year of the book
+ * @apiParam {String} originalTitle The original title of the book
+ * @apiParam {String} title The title of the book
+ * @apiParam {String} imageUrl The image URL of the book
+ * @apiParam {String} imageSmallUrl The small image URL of the book
+ * 
+ * @apiSuccess {IBook} entry The book that was added
+ * @apiError (400: Missing Required Data) {String} message "Missing required book data"
+ * @apiError (409: Book Already Exists) {String} message "Book with this ISBN already exists"
+ * @apiError (500: Database Error) {String} message "Failed to add book"
+ * 
+ */
+
 bookRouter.post('/', async (request: Request, response: Response) => {
     try {
         const newBookData: INewBook = request.body;
