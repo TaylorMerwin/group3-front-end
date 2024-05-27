@@ -72,6 +72,10 @@ function Home() {
         });
     };
 
+    const handleCloseUpdate = () => {
+        setShowUpdateComponent(false);
+    };
+
     return (
         <div>
             <h1>Single Book</h1>
@@ -148,16 +152,19 @@ function Home() {
                         ))}
                     </ul>
                     {updateVisible && (
-                        <button onClick={() => setShowUpdateComponent(true)}>Update</button>
+                        <button onClick={() => setShowUpdateComponent(true)}>Open Update</button>
                     )}
                     {showUpdateComponent && selectedBook && (
-                        
-                        <Upd
-                            isbn={selectedBook.isbn}
-                            title={selectedBook.title}
-                            author={selectedBook.authors}
-                        />
+                        <div>
+                            <Upd
+                                defaultAuthor={selectedBook.authors}
+                                defaultIsbn={selectedBook.isbn13}
+                                defaultTitle={selectedBook.title}
+                            />
+                            <button onClick={handleCloseUpdate}>Close Update</button>
+                        </div>
                     )}
+                  
                 </div>
             )}
 

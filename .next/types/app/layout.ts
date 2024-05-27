@@ -1,8 +1,8 @@
-// File: /home/taylor/code/school/tcss-460/front-end/group3-front-end/app/layout.tsx
-import * as entry from '../../../app/layout.js'
+// File: C:\Users\onme7\3D Objects\FE\group3-front-end\src\app\layout.tsx
+import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../app/layout.js')
+type TEntry = typeof import('../../../src/app/layout.js')
 
 // Check that the entry is a valid entry
 checkFields<Diff<{

@@ -1,11 +1,10 @@
 'use client'
 import React, { useState } from 'react';
 
-function Home() {
-    // State to manage search input, search results, selected criteria, and error
-    const [isbn, setIsbn] = useState('');
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
+function Update({defaultAuthor,  defaultIsbn,  defaultTitle }) {
+    const [isbn, setIsbn] = useState(defaultIsbn || '');
+    const [title, setTitle] = useState(defaultTitle || '');
+    const [author, setAuthor] = useState(defaultAuthor || '');
     const [ratingType, setRatingType] = useState('rating_1_star'); // Default value
     const [changeType, setChangeType] = useState('increaseby'); // Default value
     const [value, setValue] = useState('5'); // Default value
@@ -59,7 +58,7 @@ function Home() {
 
     return (
         <div>
-            <h1>Update</h1>
+            <h1></h1>
             <div>
                 <label>ISBN:</label>
                 <input
@@ -108,7 +107,7 @@ function Home() {
                     onChange={(e) => setValue(e.target.value)}
                 />
             </div>
-            <button onClick={handleSearch}>Submit</button>
+            <button onClick={handleSearch}>Update it</button>
             {searchResults.length !== 0 && (
                 <div>
                    Updated successfully
@@ -119,4 +118,4 @@ function Home() {
     );
 }
 
-export default Home;
+export default Update;
