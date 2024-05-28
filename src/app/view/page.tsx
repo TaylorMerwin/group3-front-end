@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Upd from "src/app/update/page";
 
 function Home() {
@@ -14,6 +14,7 @@ function Home() {
     const [count, setCount] = useState(0);
     const [updateVisible, setUpdateVisible] = useState(false);
     const [showUpdateComponent, setShowUpdateComponent] = useState(false);
+    const [deleteVisible, setDeleteVisible] = useState(false);
     const [selectedBook, setSelectedBook] = useState(null);
 
     const handleSearch = async () => {
@@ -39,18 +40,22 @@ function Home() {
                 setSearchResults([book]);
                 setError(null);
                 setUpdateVisible(true);
+                setDeleteVisible(true);
                 setSelectedBook(book);
+                setBookDeleted(false);
             } else {
                 const errorMessage = await response.text();
                 setError(errorMessage);
                 setSearchResults([]);
                 setUpdateVisible(false);
+                setDeleteVisible(false);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Error fetching data. Please try again later.');
             setSearchResults([]);
             setUpdateVisible(false);
+            setDeleteVisible(false);
         }
     };
 
@@ -74,6 +79,18 @@ function Home() {
 
     const handleCloseUpdate = () => {
         setShowUpdateComponent(false);
+    };
+
+    const handleDelete = async () => {
+        if (selectedBook) {
+            console.log(`Deleting book with ISBN: ${selectedBook.isbn13}`);
+            let url = `http://localhost:4000/books/deleteIsbn?isbn=${selectedBook.isbn13}`;
+            console.log(url);
+            setDeleteVisible(false);
+            await fetch(url, { method: 'DELETE' });
+            // Hide book from results
+            setSearchResults(searchResults.filter(book => book.isbn13 !== selectedBook.isbn13));
+        }
     };
 
     return (
@@ -164,7 +181,11 @@ function Home() {
                             <button onClick={handleCloseUpdate}>Close Update</button>
                         </div>
                     )}
-                  
+
+                    {deleteVisible && selectedBook && (
+                        <button onClick={() => handleDelete()}>Delete Book</button>
+                    )}
+
                 </div>
             )}
 
