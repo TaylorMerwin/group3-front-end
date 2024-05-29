@@ -44,7 +44,7 @@ function Home() {
 
                 setTotalPages(data.totalPages);
                 setCurrentPage(page);
-                setError("This book does not exist");
+                setError("");
             } else {
                 const errorMessage = await response.text();
                 setError("Invalid");
