@@ -23,16 +23,16 @@ function Home() {
                 setError('Please fill out all options to display a single book.');
                 return;
             }
-
+           
             let url = `http://localhost:4000/books/search?page=1&limit=15`;
             let options = [];
 
             if (selectedOptions.author) options.push(`author=${searchText.author}`);
             if (selectedOptions.isbn) options.push(`isbn=${searchText.isbn}`);
             if (selectedOptions.title) options.push(`title=${searchText.title}`);
-
+            if(searchText.author.trim()!==''&&searchText.isbn.trim()!==''&&searchText.title.trim()!==''){
             url += '&' + options.join('&');
-
+            }
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -56,6 +56,7 @@ function Home() {
                 setUpdateVisible(false);
                 setDeleteVisible(false);
             }
+        
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Error fetching data. Please try again later.');
