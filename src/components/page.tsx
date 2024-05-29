@@ -18,9 +18,10 @@ export default function NavBar() {
           <Link href="/add" component={NextLink} sx={{ ml: 5, color: 'white', textDecoration: 'none' }}>
             Add
           </Link>
-          <Link href="/update"  component={NextLink} sx={{ ml: 5, color: 'white', textDecoration: 'none' }}>
+          {/* <Link href="/update"  component={NextLink} sx={{ ml: 5, color: 'white', textDecoration: 'none' }}>
             Update/Delete
-          </Link>
+          </Link> */}
+
           <Link href="/AllBooks" component={NextLink} sx={{ ml: 5, color: 'white', textDecoration: 'none' }}>
             Books
           </Link>
