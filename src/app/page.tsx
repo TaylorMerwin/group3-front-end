@@ -39,9 +39,20 @@ function Home() {
             if (response.ok) {
                 const data = await response.json();
                 setSearchResults(data.books);
+
+
+
                 setTotalPages(data.totalPages);
                 setCurrentPage(page);
-                setError(null);
+                setError("");
+
+                const book = data.books[0];
+                if(book){
+
+                }
+                else{
+                    setError("");
+                }
             } else {
                 const errorMessage = await response.text();
                 setError("Invalid");
