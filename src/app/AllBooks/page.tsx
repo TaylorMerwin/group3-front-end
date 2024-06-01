@@ -19,14 +19,16 @@ export default function Books2() {
             <h1>Books</h1>
             <ul>
                 {books.map(book => (
-                    <li key={book.id}>
-                         ISBN13: {book.isbn13} -
-                        Title: {book.title} - Authors: {book.authors} - Publication: {book.publication} - 
-                        Average Rating: {book.ratings.average} - 
-                        Rating Count: {book.ratings.count} - Rating_star_1: {book.ratings.rating_1}
-                        <br />
-                        <img src={book.icons.large} alt={book.title} />
-                    </li>
+                       <li key={book.id }>
+                       
+                       ISBN13: {book.isbn13} -
+                       Title: {book.title} - Authors: {book.authors} - Publication: {book.publication} - 
+                       Average Rating: {book.ratings.average} - 
+                       Rating Count: {book.ratings.count} - Rating_star_1: {book.ratings.rating_1} - Rating_star_2: {book.ratings.rating_2} - 
+                       Rating_star_3: {book.ratings.rating_3} - Rating_star_4: {book.ratings.rating_4} - Rating_star_5: {book.ratings.rating_5}
+                       <br />
+                       <img src={book.icons.large} alt={book.title} />
+                   </li>
                 ))}
             </ul>
         </div>

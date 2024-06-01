@@ -45,6 +45,14 @@ function Home() {
                 setTotalPages(data.totalPages);
                 setCurrentPage(page);
                 setError("");
+
+                const book = data.books[0];
+                if(book){
+
+                }
+                else{
+                    setError("");
+                }
             } else {
                 const errorMessage = await response.text();
                 setError("Invalid");
