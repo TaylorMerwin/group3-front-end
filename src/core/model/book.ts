@@ -12,9 +12,9 @@ export interface Book {
     rating_3: number;
     rating_4: number;
     rating_5: number;
-  };
+  }
   icons: {
-    image_url: string;
-    image_small_url: string;
-  };
+    large: string;
+    small: string;
+  }
 }
