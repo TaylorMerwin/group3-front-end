@@ -47,19 +47,31 @@ export default function Books2() {
                   />
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
+                    <Typography 
+                    gutterBottom 
+                    variant="h5" 
+                    component="div"
+                    sx={{ 
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box', // Enable multiline truncation
+                      WebkitLineClamp: 2, // Number of lines to show
+                      WebkitBoxOrient: 'vertical', // Vertical orientation for the lines
+                    }}
+                  >
                         {book.title}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        by {book.authors}
+                        {book.authors}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Published: {book.publication_year}
+                        Published: {book.publication}
                       </Typography>
                       <Rating name="read-only" value={book.ratings.average} readOnly />
-                      <Typography variant="caption" color="text.secondary">
-                        ({book.ratings.count} ratings)
+                      <Typography variant="subtitle2" color="text.secondary">
+                        {book.ratings.count} ratings
                       </Typography>
+                      <br/>
                     </CardContent>
                   </Box>
                 </Card>
