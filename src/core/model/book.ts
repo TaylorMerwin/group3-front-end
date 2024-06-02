@@ -3,7 +3,7 @@ export interface Book {
   isbn13: string;
   title: string;
   authors: string; 
-  publication_year: number;
+  publication: number;
   ratings: {
     average: number;
     count: number;
