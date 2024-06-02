@@ -11,7 +11,7 @@ node_modules
 
 # next.js
 
-.next
+.next/
 /next
 /.next
 next
@@ -41,3 +41,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 # next-env.d.ts
+
+# npm remnants
