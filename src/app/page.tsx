@@ -80,6 +80,7 @@ function Home() {
                 const tPages = Math.ceil(data.books.length / limit);
                 setTotalPages(tPages);
                 console.log(tPages);
+                console.log("NOT WORKING")
                 handlePageChangeSearch(page, limit);
             } else {
                 const errorMessage = await response.text();
