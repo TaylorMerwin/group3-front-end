@@ -1,36 +1,72 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Book } from '../../core/model/book';
+import { Box, Typography, Grid, Card, CardMedia, CardContent, Rating } from '@mui/material';
 
 export default function Books2() {
-    const [books, setBooks] = useState([]);
+    const [books, setBooks] = useState<Book[]>([]);
 
     useEffect(() => {
         const fetchBooks = async () => {
-            const res = await fetch("http://localhost:4000/books/all");
-            const data = await res.json();
-            setBooks(data.books);
+            try {
+                const res = await fetch("http://localhost:4000/books/all");
+
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch books: ${res.statusText}`);
+                }
+
+                const data = await res.json();
+                setBooks(data.books);
+            } catch (error) {
+                console.error(error);
+            }
         };
 
         fetchBooks();
-    }, []); // Empty dependency array means this effect runs once when the component mounts
+    }, []);
 
     return (
-        <div>
-            <h1>Books</h1>
-            <ul>
-                {books.map(book => (
-                       <li key={book.id }>
-                       
-                       ISBN13: {book.isbn13} -
-                       Title: {book.title} - Authors: {book.authors} - Publication: {book.publication} - 
-                       Average Rating: {book.ratings.average} - 
-                       Rating Count: {book.ratings.count} - Rating_star_1: {book.ratings.rating_1} - Rating_star_2: {book.ratings.rating_2} - 
-                       Rating_star_3: {book.ratings.rating_3} - Rating_star_4: {book.ratings.rating_4} - Rating_star_5: {book.ratings.rating_5}
-                       <br />
-                       <img src={book.icons.large} alt={book.title} />
-                   </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            All Books
+          </Typography>
+          <Grid container spacing={3}>
+            {books.map((book) => (
+              <Grid item xs={12} sm={6} md={4} key={book.id}>
+                <Card sx={{ display: 'flex', height: '100%' }}> 
+                  <CardMedia
+                    component="img"
+                    sx={{
+                        objectFit: 'cover',
+                        width: '150px',
+                        height: '100%',
+                    }}
+                    image={book.icons.large}
+                    alt={book.title}
+                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        {book.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        by {book.authors}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Published: {book.publication_year}
+                      </Typography>
+                      <Rating name="read-only" value={book.ratings.average} readOnly />
+                      <Typography variant="caption" color="text.secondary">
+                        ({book.ratings.count} ratings)
+                      </Typography>
+                    </CardContent>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      );
+    }
+    
