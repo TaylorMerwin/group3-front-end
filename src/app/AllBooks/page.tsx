@@ -3,28 +3,50 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Book } from '../../core/model/book';
 import { Box, Typography, Grid, Card, CardMedia, CardContent, Rating } from '@mui/material';
+import Pagination from '@mui/material/Pagination';
 
 export default function Books2() {
     const [books, setBooks] = useState<Book[]>([]);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
         const fetchBooks = async () => {
-            try {
-                const res = await fetch("http://localhost:4000/books/all");
+          try {
+            const res = await fetch("http://localhost:4000/books/all?offset=1000000&page=1");
 
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch books: ${res.statusText}`);
-                }
-
-                const data = await res.json();
-                setBooks(data.books);
-            } catch (error) {
-                console.error(error);
+            if (!res.ok) {
+                throw new Error(`Failed to fetch books: ${res.statusText}`);
             }
+            const data = await res.json();
+            const tPages = Math.ceil(data.books.length / 15);
+            setTotalPages(tPages);
+            handlePageChange();
+          } catch (error) {
+            console.error(error);
+          }
         };
 
         fetchBooks();
     }, []);
+
+    const handlePageChange = async (page = 1) => {
+      try {
+        const res = await fetch(`http://localhost:4000/books/all?page=${page}&offset=15`);
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch books: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        setBooks(data.books);
+      } catch (error) {
+        console.error(error);
+      }
+    }  
+
+    const handlePagination = (event: React.ChangeEvent<unknown>, page: number) => {
+      handlePageChange(page);
+    };
 
     return (
         <Box sx={{ flexGrow: 1, padding: 2 }}>
@@ -71,6 +93,10 @@ export default function Books2() {
                       <Typography variant="subtitle2" color="text.secondary">
                         {book.ratings.count} ratings
                       </Typography>
+                      <Typography variant="subtitle2" color="text.secondary">
+                                            1-Star: {book.ratings.rating_1}, 2-Star: {book.ratings.rating_2}, 
+                                            3-Star: {book.ratings.rating_3}, 4-Star: {book.ratings.rating_4}, 5-Star: {book.ratings.rating_5}
+                                        </Typography>
                       <br/>
                     </CardContent>
                   </Box>
@@ -78,6 +104,9 @@ export default function Books2() {
               </Grid>
             ))}
           </Grid>
+          <div style={{ paddingTop: '20px', paddingBottom: '20px' }}>
+              <Pagination count={totalPages} color="primary" onChange={handlePagination} />
+          </div>
         </Box>
       );
     }
