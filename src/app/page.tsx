@@ -225,7 +225,7 @@ function Home() {
                                 labelPlacement="bottom"
                             />
                         </FormGroup>
-                        <FormHelperText sx={{color: 'red'}}>Check 1 or more:</FormHelperText>
+                        <FormHelperText sx={{color: 'red'}}>Search using 1 or more:</FormHelperText>
                     </FormControl>
 
                     <TextField
@@ -326,6 +326,9 @@ function Home() {
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             Published: {book.publication}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            ISBN: {book.isbn13}
                                         </Typography>
                                         <Rating name="read-only" value={book.ratings.average} readOnly />
                                         <Typography variant="subtitle2" color="text.secondary">

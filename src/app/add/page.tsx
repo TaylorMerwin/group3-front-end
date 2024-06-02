@@ -5,10 +5,11 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import AddIcon from '@mui/icons-material/Add'; // Correct import for AddIcon
 import RemoveIcon from '@mui/icons-material/Remove'; // Correct import for RemoveIcon
-import { request } from "http";
-import { Button, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Button, Grid, IconButton, InputAdornment, TextField, Alert } from "@mui/material";
 
 export default function AddBook() {
+  const [error, setError] = React.useState(null);
+  const [success, setSuccess] = React.useState(null);
   const [bookData, setBookData] = React.useState({
     id: '',
     isbn13: '',
@@ -50,7 +51,8 @@ export default function AddBook() {
     const authorsString = bookData.authors.filter(author => author.trim() !== '').join(' '); // Remove empty entries and join with spaces
 
     if (authorsString === '') {
-      alert('At least one author is required.');
+      setError("At least one author is required.");
+      setSuccess(null);
       return;
     }
 
@@ -68,15 +70,18 @@ export default function AddBook() {
         body: JSON.stringify(dataToSend), // Use dataToSend here
       });
       if (response.ok) {
-        alert('Book added successfully');
+        setSuccess('Book added successfully');
+        setError(null);
         // Optionally, clear the form or redirect to another page
       } else {
         console.error('Failed to add book: ', response.statusText); // Log the error to the console
-        alert('Failed to add book!' + response.statusText);
+        setError('Failed to add book!' + response.statusText);
+        setSuccess(null);
       }
     } catch (error) {
       console.error('Error adding book:', error); // Log any network or other errors
-      alert('An error occurred while adding the book.');
+      setError('An error occurred while adding the book.');
+      setSuccess(null);
     }
   };
 
@@ -89,125 +94,131 @@ export default function AddBook() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Container>
-        <Typography variant="h3" component="h1" align="center" gutterBottom sx={{ fontWeight: 'bold', mb: 2, }}>
-          Add a Book
-        </Typography>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <Container>
+          {/* <Typography variant="h3" component="h1" align="center" gutterBottom sx={{ fontWeight: 'bold', mb: 2, }}>
+            Add a Book
+          </Typography> */}
+          <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Add a Book</h1>
 
-        <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Grid container spacing={2}>
-            {/* ISBN-13, Authors, Publication Year */}
-            <Grid item xs={10}>
-              <TextField
-                fullWidth
-                label="ISBN-13"
-                variant="outlined"
-                type="number"
-                value={bookData.isbn13}
-                onChange={(e) => setBookData({ ...bookData, isbn13: e.target.value })}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={2}>
-              <Button variant="contained" color="secondary" onClick={() => setBookData({ ...bookData, isbn13: generateRandomIsbn() })}>
-                Generate
-              </Button>
-            </Grid>
-
-            {/* Authors section */}
-            {bookData.authors.map((author, index) => (
-              <Grid item xs={12} sm={6} key={index}>
+          <Box sx={{ flexGrow: 1, padding: 2 }}>
+            <Grid container spacing={2}>
+              {/* ISBN-13, Authors, Publication Year */}
+              <Grid item xs={10}>
                 <TextField
                   fullWidth
-                  label={`Author ${index + 1}`}
+                  label="ISBN-13"
                   variant="outlined"
-                  value={author}
-                  onChange={(e) => handleAuthorChange(index, e.target.value)}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => removeAuthorField(index)}
-                          disabled={bookData.authors.length === 1}
-                          edge="end"  // Align to the end of the input field
-                        >
-                          <RemoveIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
+                  type="number"
+                  value={bookData.isbn13}
+                  onChange={(e) => setBookData({ ...bookData, isbn13: e.target.value })}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  required
                 />
               </Grid>
-            ))}
-            {/* Add Author button */}
-            <Grid item xs={12}>
-              <Button variant="outlined" startIcon={<AddIcon />} onClick={addAuthorField}>
-                Add Author
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Title"
-                variant="outlined"
-                inputProps={{ maxLength: 255 }}
-                value={bookData.title}
-                onChange={(e) => setBookData({ ...bookData, title: e.target.value })}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Publication Year"
-                variant="outlined"
-                type="number"
-                value={bookData.publication_year}
-                onChange={(e) => setBookData({ ...bookData, publication_year: e.target.value })}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Image URL"
-                variant="outlined"
-                type="url"
-                value={bookData.image_url}
-                onChange={(e) => setBookData({ ...bookData, image_url: e.target.value })}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Small Image URL"
-                variant="outlined"
-                type="url"
-                value={bookData.image_small_url}
-                onChange={(e) => setBookData({ ...bookData, image_small_url: e.target.value })}
-                required
-              />
-            </Grid>
-          </Grid>
 
-        </Box>
+              <Grid item xs={2}>
+                <Button variant="contained" color="secondary" onClick={() => setBookData({ ...bookData, isbn13: generateRandomIsbn() })}>
+                  Generate
+                </Button>
+              </Grid>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          fullWidth
-          sx={{ mt: 2 }}
-        >
-          Add Book
-        </Button>
-      </Container>
-    </form>
+              {/* Authors section */}
+              {bookData.authors.map((author, index) => (
+                <Grid item xs={12} sm={6} key={index}>
+                  <TextField
+                    fullWidth
+                    label={`Author ${index + 1}`}
+                    variant="outlined"
+                    value={author}
+                    onChange={(e) => handleAuthorChange(index, e.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => removeAuthorField(index)}
+                            disabled={bookData.authors.length === 1}
+                            edge="end"  // Align to the end of the input field
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              ))}
+              {/* Add Author button */}
+              <Grid item xs={12}>
+                <Button variant="outlined" startIcon={<AddIcon />} onClick={addAuthorField}>
+                  Add Author
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Title"
+                  variant="outlined"
+                  inputProps={{ maxLength: 255 }}
+                  value={bookData.title}
+                  onChange={(e) => setBookData({ ...bookData, title: e.target.value })}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Publication Year"
+                  variant="outlined"
+                  type="number"
+                  value={bookData.publication_year}
+                  onChange={(e) => setBookData({ ...bookData, publication_year: e.target.value })}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Image URL"
+                  variant="outlined"
+                  type="url"
+                  value={bookData.image_url}
+                  onChange={(e) => setBookData({ ...bookData, image_url: e.target.value })}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Small Image URL"
+                  variant="outlined"
+                  type="url"
+                  value={bookData.image_small_url}
+                  onChange={(e) => setBookData({ ...bookData, image_small_url: e.target.value })}
+                  required
+                />
+              </Grid>
+            </Grid>
+
+          </Box>
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Add Book
+          </Button>
+        </Container>
+      </form>
+
+      {(error != null && success == null) && <Alert severity="error">{error}</Alert>}
+      {(error == null && success != null) && <Alert severity="success">{success}</Alert>}
+    </div>
   );
 }
