@@ -3,209 +3,211 @@ import * as React from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import AddIcon from '@mui/icons-material/Add'; // Correct import for AddIcon
+import RemoveIcon from '@mui/icons-material/Remove'; // Correct import for RemoveIcon
 import { request } from "http";
+import { Button, Grid, IconButton, InputAdornment, TextField } from "@mui/material";
 
 export default function AddBook() {
   const [bookData, setBookData] = React.useState({
-    id: 0,
-    isbn13: "1111111111111",
-    authors: "John Doe",
-    publication_year: 2024,
-    original_title: "Original Title",
-    title: "Title",
-    rating_avg: 2.5,
-    rating_count: 100,
-    rating_1_star: 50,
+    id: '',
+    isbn13: '',
+    authors: [''],
+    publication_year: '',
+    original_title: '',
+    title: '',
+    rating_avg: 0,
+    rating_count: 0,
+    rating_1_star: 0,
     rating_2_star: 0,
     rating_3_star: 0,
     rating_4_star: 0,
-    rating_5_star: 50,
+    rating_5_star: 0,
     image_url: "https://picsum.photos/500",
     image_small_url: "https://picsum.photos/200"
-});
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  });
 
-  try {
-    const response = await fetch('http://localhost:4000/books/addBook', { 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bookData),
-    });
+  const handleAuthorChange = (index: number, value: string) => {
+    const newAuthors = [...bookData.authors];
+    newAuthors[index] = value;
+    setBookData({ ...bookData, authors: newAuthors });
+  };
 
-    if (response.ok) {
-      alert('Book added successfully');
-      // Optionally, clear the form or redirect to another page
-    } else {
-      console.error('Failed to add book: ', response.statusText); // Log the error to the console
-      alert('Failed to add book!' + response.statusText);
+  const addAuthorField = () => {
+    setBookData({ ...bookData, authors: [...bookData.authors, ''] });
+  };
+
+  const removeAuthorField = (index: number) => {
+    const newAuthors = [...bookData.authors];
+    newAuthors.splice(index, 1);
+    setBookData({ ...bookData, authors: newAuthors });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Combine authors into a single string
+    const authorsString = bookData.authors.filter(author => author.trim() !== '').join(' '); // Remove empty entries and join with spaces
+
+    if (authorsString === '') {
+      alert('At least one author is required.');
+      return;
     }
-  } catch (error) {
-    console.error('Error adding book:', error); // Log any network or other errors
-    alert('An error occurred while adding the book.');
-  }
-};
 
-return (
-  <form onSubmit={handleSubmit}>
-    <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Add a Book!!1!
-      </Typography>
-      <Box>
-      <label>
-          ID:
-          <input
-            type="text"
-            value={bookData.id}
-            onChange={(e) => setBookData({ ...bookData, id: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          ISBN13:
-          <input
-            type="text"
-            value={bookData.isbn13}
-            onChange={(e) => setBookData({ ...bookData, isbn13: e.target.value })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Authors:
-          <input
-            type="text"
-            value={bookData.authors}
-            onChange={(e) => setBookData({ ...bookData, authors: e.target.value })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Publication Year:
-          <input
-            type="number"
-            value={bookData.publication_year}
-            onChange={(e) => setBookData({ ...bookData, publication_year: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Original Title:
-          <input
-            type="text"
-            value={bookData.original_title}
-            onChange={(e) => setBookData({ ...bookData, original_title: e.target.value })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Title:
-          <input
-            type="text"
-            value={bookData.title}
-            onChange={(e) => setBookData({ ...bookData, title: e.target.value })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating Average:
-          <input
-            type="number"
-            value={bookData.rating_avg}
-            onChange={(e) => setBookData({ ...bookData, rating_avg: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating Count:
-          <input
-            type="number"
-            value={bookData.rating_count}
-            onChange={(e) => setBookData({ ...bookData, rating_count: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating 1 Star:
-          <input
-            type="number"
-            value={bookData.rating_1_star}
-            onChange={(e) => setBookData({ ...bookData, rating_1_star: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating 2 Star:
-          <input
-            type="number"
-            value={bookData.rating_2_star}
-            onChange={(e) => setBookData({ ...bookData, rating_2_star: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating 3 Star:
-          <input
-            type="number"
-            value={bookData.rating_3_star}
-            onChange={(e) => setBookData({ ...bookData, rating_3_star: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating 4 Star:
-          <input
-            type="number"
-            value={bookData.rating_4_star}
-            onChange={(e) => setBookData({ ...bookData, rating_4_star: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Rating 5 Star:
-          <input
-            type="number"
-            value={bookData.rating_5_star}
-            onChange={(e) => setBookData({ ...bookData, rating_5_star: parseInt(e.target.value) })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Image Url:
-          <input
-            type="text"
-            value={bookData.image_url}
-            onChange={(e) => setBookData({ ...bookData, image_url: e.target.value })}
-          />
-        </label>
-      </Box>
-      <Box>
-        <label>
-          Small Image Url:
-          <input
-            type="text"
-            value={bookData.image_small_url}
-            onChange={(e) => setBookData({ ...bookData, image_small_url: e.target.value })}
-          />
-        </label>
-      </Box>
+    const dataToSend = { ...bookData, authors: authorsString, original_title: bookData.title };
+
+
+
+
+    try {
+      const response = await fetch('http://localhost:4000/books/addBook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend), // Use dataToSend here
+      });
+      if (response.ok) {
+        alert('Book added successfully');
+        // Optionally, clear the form or redirect to another page
+      } else {
+        console.error('Failed to add book: ', response.statusText); // Log the error to the console
+        alert('Failed to add book!' + response.statusText);
+      }
+    } catch (error) {
+      console.error('Error adding book:', error); // Log any network or other errors
+      alert('An error occurred while adding the book.');
+    }
+  };
+
+  const generateRandomIsbn = () => {
+    let isbn13 = '';
+    for (let i = 0; i < 13; i++) {
+      isbn13 += Math.floor(Math.random() * 10); // Generate random digits
+    }
+    return isbn13;
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Container>
+        <Typography variant="h3" component="h1" align="center" gutterBottom sx={{ fontWeight: 'bold', mb: 2, }}>
+          Add a Book
+        </Typography>
+
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <Grid container spacing={2}>
+            {/* ISBN-13, Authors, Publication Year */}
+            <Grid item xs={10}>
+              <TextField
+                fullWidth
+                label="ISBN-13"
+                variant="outlined"
+                type="number"
+                value={bookData.isbn13}
+                onChange={(e) => setBookData({ ...bookData, isbn13: e.target.value })}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={2}>
+              <Button variant="contained" color="secondary" onClick={() => setBookData({ ...bookData, isbn13: generateRandomIsbn() })}>
+                Generate
+              </Button>
+            </Grid>
+
+            {/* Authors section */}
+            {bookData.authors.map((author, index) => (
+              <Grid item xs={12} sm={6} key={index}>
+                <TextField
+                  fullWidth
+                  label={`Author ${index + 1}`}
+                  variant="outlined"
+                  value={author}
+                  onChange={(e) => handleAuthorChange(index, e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => removeAuthorField(index)}
+                          disabled={bookData.authors.length === 1}
+                          edge="end"  // Align to the end of the input field
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            ))}
+            {/* Add Author button */}
+            <Grid item xs={12}>
+              <Button variant="outlined" startIcon={<AddIcon />} onClick={addAuthorField}>
+                Add Author
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Title"
+                variant="outlined"
+                inputProps={{ maxLength: 255 }}
+                value={bookData.title}
+                onChange={(e) => setBookData({ ...bookData, title: e.target.value })}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Publication Year"
+                variant="outlined"
+                type="number"
+                value={bookData.publication_year}
+                onChange={(e) => setBookData({ ...bookData, publication_year: e.target.value })}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Image URL"
+                variant="outlined"
+                type="url"
+                value={bookData.image_url}
+                onChange={(e) => setBookData({ ...bookData, image_url: e.target.value })}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Small Image URL"
+                variant="outlined"
+                type="url"
+                value={bookData.image_small_url}
+                onChange={(e) => setBookData({ ...bookData, image_small_url: e.target.value })}
+                required
+              />
+            </Grid>
+          </Grid>
+
+        </Box>
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          sx={{ mt: 2 }}
+        >
+          Add Book
+        </Button>
       </Container>
-      <button type="submit">Add Book</button>
-    </form> 
-);  
+    </form>
+  );
 }
