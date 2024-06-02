@@ -225,7 +225,7 @@ function Home() {
                                 labelPlacement="bottom"
                             />
                         </FormGroup>
-                        <FormHelperText sx={{color: 'red'}}>Check 1 or more:</FormHelperText>
+                        <FormHelperText sx={{color: 'red'}}>Search using 1 or more:</FormHelperText>
                     </FormControl>
 
                     <TextField

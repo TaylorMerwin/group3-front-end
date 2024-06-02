@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Upd from "src/app/update/page";
 import { Book } from '../../core/model/book';
-import { Box, Typography, Card, CardMedia, CardContent, Rating } from '@mui/material';
+import { Box, Typography, Card, CardMedia, CardContent, Rating, FormControl, FormLabel, FormGroup, FormControlLabel, FormHelperText, Checkbox, TextField, Button, Alert} from '@mui/material';
 
 function Home() {
     const [searchText, setSearchText] = useState({ author: '', isbn: '', title: '' });
@@ -19,10 +19,14 @@ function Home() {
     const [deleteVisible, setDeleteVisible] = useState(false);
     const [selectedBook, setSelectedBook] = useState<Book>();
 
+    const checkboxLabel = {
+        inputProps: { 'aria-label': 'Checkbox for search queries' }
+    };
+
     const handleSearch = async () => {
         try {
-            if (count < 3) {
-                setError('Please fill out all options to display a single book.');
+            if (count < 0) {
+                setError('Requires at least one search parameter!');
                 return;
             }
            
@@ -32,9 +36,13 @@ function Home() {
             if (selectedOptions.author) options.push(`author=${searchText.author}`);
             if (selectedOptions.isbn) options.push(`isbn=${searchText.isbn}`);
             if (selectedOptions.title) options.push(`title=${searchText.title}`);
-            if(searchText.author.trim()!==''&&searchText.isbn.trim()!==''&&searchText.title.trim()!==''){
-            url += '&' + options.join('&');
+            if(searchText.author.trim()!=='' || searchText.isbn.trim()!=='' || searchText.title.trim()!==''){
+                url += '&' + options.join('&');
+            } else {
+                setError('Requires at least one non-blank search parameter!');
+                return;
             }
+            console.log(url);
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -105,86 +113,79 @@ function Home() {
     return (
         <div>
             <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>View Single Book</h1>
-            <div>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={selectedOptions.author}
-                        onChange={() => handleCheckboxChange('author')}
-                    />
-                    Author
-                </label>
-                
-                {selectedOptions.author && (
-                    <input
-                        type="text"
-                        name="author"
-                        placeholder="Search by author..."
-                        value={searchText.author}
-                        onChange={handleInputChange}
-                    />
-                )}
-                <br />
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={selectedOptions.isbn}
-                        onChange={() => handleCheckboxChange('isbn')}
-                    />
-                    ISBN
-                </label>
-                {selectedOptions.isbn && (
-                    <input
-                        type="text"
-                        name="isbn"
-                        placeholder="Search by ISBN..."
-                        value={searchText.isbn}
-                        onChange={handleInputChange}
-                    />
-                )}
-                <br />
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={selectedOptions.title}
-                        onChange={() => handleCheckboxChange('title')}
-                    />
-                    Title
-                </label>
-                {selectedOptions.title && (
-                    <input
-                        type="text"
-                        name="title"
-                        placeholder="Search by title..."
-                        value={searchText.title}
-                        onChange={handleInputChange}
-                    />
-                )}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TextField
+                    type="text"
+                    name="author"
+                    placeholder="Search by author..."
+                    value={searchText.author}
+                    onChange={handleInputChange}
+                    disabled={!selectedOptions.author}
+                />
+                <TextField
+                    type="text"
+                    name="isbn"
+                    placeholder="Search by ISBN..."
+                    value={searchText.isbn}
+                    onChange={handleInputChange}
+                    disabled={!selectedOptions.isbn}
+                />
+                <TextField
+                    type="text"
+                    name="title"
+                    placeholder="Search by title..."
+                    value={searchText.title}
+                    onChange={handleInputChange}
+                    disabled={!selectedOptions.title}
+                />
+                <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+                        <FormLabel component="legend">Search for Keywords in:</FormLabel>
+                        <FormGroup sx={{ flexDirection: 'row' }}>
+                            <FormControlLabel control={<Checkbox {...checkboxLabel}
+                                    checked={selectedOptions.author}
+                                    onChange={() => handleCheckboxChange('author')}
+                                />}
+                                label="Author"
+                                labelPlacement="bottom"
+                            />
+                            
+                            <FormControlLabel control={<Checkbox {...checkboxLabel}
+                                    checked={selectedOptions.isbn}
+                                    onChange={() => handleCheckboxChange('isbn')}
+                                />}
+                                label="ISBN"
+                                labelPlacement="bottom"
+                            />
+
+                            <FormControlLabel control={<Checkbox {...checkboxLabel}
+                                    checked={selectedOptions.title}
+                                    onChange={() => handleCheckboxChange('title')}
+                                />}
+                                label="Title"
+                                labelPlacement="bottom"
+                            />
+                        </FormGroup>
+                        <FormHelperText sx={{color: 'red'}}>Check 1 or more:</FormHelperText>
+                    </FormControl>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        sx={{ padding: "25px" }}
+                        onClick={() => handleSearch()}
+                        >
+                        Submit
+                    </Button>
             </div>
-            <button onClick={handleSearch}>Submit</button>
 
             {searchResults.length !== 0 && (
                 <div>
-                    {count !== 3 && <p>Please fill out all options to display a single book.</p>}
+                    {count !== 3 && <Alert severity="warning" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        Partial Search Performed: Please fill out all options to ensure you've selected the right book!
+                                    </Alert>}
                     <h2>Search Result:</h2>
                     <ul>
-                        {/* {searchResults.map((book, index) => (
-                            <li key={book.id || index}>
-                                {book.isbn13 && <p>ISBN13: {book.isbn13}</p>}
-                                {book.title && <p>Title: {book.title}</p>}
-                                {book.authors && <p>Authors: {book.authors}</p>}
-                                
-                                {book.publication && <p>Publication: {book.publication}</p>}
-                                {book.ratings && (
-                                    <p>
-                                        Average Rating: {book.ratings.average} - 
-                                        Rating Count: {book.ratings.count} - 
-                                        Rating_star_1: {book.ratings.rating_1}
-                                    </p>
-                                )}
-                                {book.icons && book.icons.large && <img src={book.icons.large} alt={book.title} />}
-                            </li>
-                        ))} */}
                         {selectedBook &&
                         <Card sx={{ display: 'flex', height: '100%' }}> 
                             <CardMedia
@@ -258,7 +259,7 @@ function Home() {
             )}
 
 
-            {error && <p>Error: {error}</p>}
+            {error && <Alert severity="error">{error}</Alert>}
         </div>
     );
 }
