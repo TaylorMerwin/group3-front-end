@@ -1,6 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Upd from "src/app/update/page";
+import { Book } from '../../core/model/book';
+import { Box, Typography, Card, CardMedia, CardContent, Rating } from '@mui/material';
 
 function Home() {
     const [searchText, setSearchText] = useState({ author: '', isbn: '', title: '' });
@@ -15,7 +17,7 @@ function Home() {
     const [updateVisible, setUpdateVisible] = useState(false);
     const [showUpdateComponent, setShowUpdateComponent] = useState(false);
     const [deleteVisible, setDeleteVisible] = useState(false);
-    const [selectedBook, setSelectedBook] = useState(null);
+    const [selectedBook, setSelectedBook] = useState<Book>();
 
     const handleSearch = async () => {
         try {
@@ -102,7 +104,7 @@ function Home() {
 
     return (
         <div>
-            <h1>Single Book</h1>
+            <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>View Single Book</h1>
             <div>
                 <label>
                     <input
@@ -166,7 +168,7 @@ function Home() {
                     {count !== 3 && <p>Please fill out all options to display a single book.</p>}
                     <h2>Search Result:</h2>
                     <ul>
-                        {searchResults.map((book, index) => (
+                        {/* {searchResults.map((book, index) => (
                             <li key={book.id || index}>
                                 {book.isbn13 && <p>ISBN13: {book.isbn13}</p>}
                                 {book.title && <p>Title: {book.title}</p>}
@@ -182,7 +184,57 @@ function Home() {
                                 )}
                                 {book.icons && book.icons.large && <img src={book.icons.large} alt={book.title} />}
                             </li>
-                        ))}
+                        ))} */}
+                        {selectedBook &&
+                        <Card sx={{ display: 'flex', height: '100%' }}> 
+                            <CardMedia
+                                component="img"
+                                sx={{
+                                    objectFit: 'cover',
+                                    width: '150px',
+                                    height: '100%',
+                                }}
+                                image={selectedBook.icons.large}
+                                alt={selectedBook.title}
+                            />
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                <CardContent>
+                                <Typography 
+                                gutterBottom 
+                                variant="h5" 
+                                component="div"
+                                sx={{ 
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box', // Enable multiline truncation
+                                WebkitLineClamp: 2, // Number of lines to show
+                                WebkitBoxOrient: 'vertical', // Vertical orientation for the lines
+                                }}
+                            >
+                                    {selectedBook.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {selectedBook.authors}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Published: {selectedBook.publication}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    ISBN: {selectedBook.isbn13}
+                                </Typography>
+                                <Rating name="read-only" value={selectedBook.ratings.average} readOnly />
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    {selectedBook.ratings.count} ratings
+                                </Typography>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    1-Star: {selectedBook.ratings.rating_1}, 2-Star: {selectedBook.ratings.rating_2}, 
+                                    3-Star: {selectedBook.ratings.rating_3}, 4-Star: {selectedBook.ratings.rating_4}, 5-Star: {selectedBook.ratings.rating_5}
+                                </Typography>
+                                <br/>
+                                </CardContent>
+                            </Box>
+                        </Card>
+                        }
                     </ul>
                     {updateVisible && (
                         <button onClick={() => setShowUpdateComponent(true)}>Open Update</button>

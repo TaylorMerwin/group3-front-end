@@ -49,10 +49,9 @@ export default function Books2() {
     };
 
     return (
+      <div>
+        <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>All Books</h1>
         <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Typography variant="h4" align="center" gutterBottom>
-            All Books
-          </Typography>
           <Grid container spacing={3}>
             {books.map((book) => (
               <Grid item xs={12} sm={6} md={4} key={book.id}>
@@ -111,6 +110,7 @@ export default function Books2() {
               <Pagination count={totalPages} color="primary" onChange={handlePagination} />
           </div>
         </Box>
+      </div>
       );
     }
     
