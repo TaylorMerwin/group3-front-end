@@ -1,47 +1,36 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Upd from "src/app/update/page";
 import { Book } from '../../core/model/book';
-import { Box, Typography, Card, CardMedia, CardContent, Rating, FormControl, FormLabel, FormGroup, FormControlLabel, FormHelperText, Checkbox, TextField, Button, Alert} from '@mui/material';
-
+import FormGroup from '@mui/material/FormGroup';
+import FormHelperText from '@mui/material/FormHelperText';
+import { Box, Typography, Card, CardMedia, CardContent, Rating, TextField, Button, Alert } from '@mui/material';
+import styles from 'static/css/app/layout.css'
 function Home() {
     const [searchText, setSearchText] = useState({ author: '', isbn: '', title: '' });
     const [searchResults, setSearchResults] = useState([]);
-    const [selectedOptions, setSelectedOptions] = useState({
-        author: false,
-        isbn: false,
-        title: false,
-    });
     const [error, setError] = useState(null);
-    const [count, setCount] = useState(0);
     const [updateVisible, setUpdateVisible] = useState(false);
     const [showUpdateComponent, setShowUpdateComponent] = useState(false);
     const [deleteVisible, setDeleteVisible] = useState(false);
     const [selectedBook, setSelectedBook] = useState<Book>();
-
-    const checkboxLabel = {
-        inputProps: { 'aria-label': 'Checkbox for search queries' }
+    const sanitizeTitle = (title) => {
+        return title.replace(/#/g, '');
     };
+
 
     const handleSearch = async () => {
         try {
-            if (count < 0) {
-                setError('Requires at least one search parameter!');
-                return;
-            }
-           
-            let url = `http://localhost:4000/books/search?page=1&limit=15`;
-            let options = [];
+            const { author, isbn, title } = searchText;
 
-            if (selectedOptions.author) options.push(`author=${searchText.author}`);
-            if (selectedOptions.isbn) options.push(`isbn=${searchText.isbn}`);
-            if (selectedOptions.title) options.push(`title=${searchText.title}`);
-            if(searchText.author.trim()!=='' || searchText.isbn.trim()!=='' || searchText.title.trim()!==''){
-                url += '&' + options.join('&');
-            } else {
-                setError('Requires at least one non-blank search parameter!');
+            if (author.trim() === '' || isbn.trim() === '' || title.trim() === '') {
+                setError('All fields are required!');
                 return;
             }
+            const sanitizedTitle = sanitizeTitle(searchText.title);
+            let url = `http://localhost:4000/books/search?page=1&limit=15`;
+            url += `&author=${author}&isbn=${isbn}&title=${sanitizedTitle}`;
+
             console.log(url);
             const response = await fetch(url);
             if (response.ok) {
@@ -76,16 +65,6 @@ function Home() {
         }
     };
 
-    const handleCheckboxChange = (criteria) => {
-        const newValue = !selectedOptions[criteria];
-        setSelectedOptions({
-            ...selectedOptions,
-            [criteria]: newValue
-        });
-
-        setCount(prevCount => newValue ? prevCount + 1 : prevCount - 1);
-    };
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setSearchText({
@@ -110,80 +89,59 @@ function Home() {
         }
     };
 
+    const isSearchButtonDisabled = !(
+        searchText.author.trim() !== '' &&
+        searchText.isbn.trim() !== '' &&
+        searchText.title.trim() !== ''
+    );
+
     return (
         <div>
             <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>View Single Book</h1>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TextField
-                    type="text"
-                    name="author"
-                    placeholder="Search by author..."
-                    value={searchText.author}
-                    onChange={handleInputChange}
-                    disabled={!selectedOptions.author}
-                />
-                <TextField
-                    type="text"
-                    name="isbn"
-                    placeholder="Search by ISBN..."
-                    value={searchText.isbn}
-                    onChange={handleInputChange}
-                    disabled={!selectedOptions.isbn}
-                />
-                <TextField
-                    type="text"
-                    name="title"
-                    placeholder="Search by title..."
-                    value={searchText.title}
-                    onChange={handleInputChange}
-                    disabled={!selectedOptions.title}
-                />
-                <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-                        <FormLabel component="legend">Search for Keywords in:</FormLabel>
-                        <FormGroup sx={{ flexDirection: 'row' }}>
-                            <FormControlLabel control={<Checkbox {...checkboxLabel}
-                                    checked={selectedOptions.author}
-                                    onChange={() => handleCheckboxChange('author')}
-                                />}
-                                label="Author"
-                                labelPlacement="bottom"
-                            />
-                            
-                            <FormControlLabel control={<Checkbox {...checkboxLabel}
-                                    checked={selectedOptions.isbn}
-                                    onChange={() => handleCheckboxChange('isbn')}
-                                />}
-                                label="ISBN"
-                                labelPlacement="bottom"
-                            />
-
-                            <FormControlLabel control={<Checkbox {...checkboxLabel}
-                                    checked={selectedOptions.title}
-                                    onChange={() => handleCheckboxChange('title')}
-                                />}
-                                label="Title"
-                                labelPlacement="bottom"
-                            />
-                        </FormGroup>
-                        <FormHelperText sx={{color: 'red'}}>Check 1 or more:</FormHelperText>
-                    </FormControl>
+            <FormGroup style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TextField
+                        type="text"
+                        name="author"
+                        placeholder="Search by author..."
+                        value={searchText.author}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        type="text"
+                        name="isbn"
+                        placeholder="Search by ISBN..."
+                        value={searchText.isbn}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        type="text"
+                        name="title"
+                        placeholder="Search by title..."
+                        value={searchText.title}
+                        onChange={handleInputChange}
+                    />
                     <Button
                         type="submit"
                         variant="contained"
-                        color="primary"
                         size="small"
                         sx={{ padding: "25px" }}
-                        onClick={() => handleSearch()}
-                        >
+                        onClick={handleSearch}
+                        disabled={isSearchButtonDisabled}
+                    >
                         Submit
                     </Button>
-            </div>
+                </div>
+                {isSearchButtonDisabled && <FormHelperText sx={{color: 'red'}}>Search using all 3 parameters!</FormHelperText>}
+            </FormGroup>
 
             {searchResults.length !== 0 && (
                 <div>
-                    {count !== 3 && <Alert severity="warning" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        Partial Search Performed: Please fill out all options to ensure you've selected the right book!
-                                    </Alert>}
+                    {error && (
+                        <Alert severity="warning" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {error}
+                        </Alert>
+                    )}
                     <h2>Search Result:</h2>
                     <ul>
                         {selectedBook &&
@@ -238,26 +196,24 @@ function Home() {
                         }
                     </ul>
                     {updateVisible && (
-                        <button onClick={() => setShowUpdateComponent(true)}>Open Update</button>
+                        <button onClick={() => setShowUpdateComponent(!showUpdateComponent)}>Update Book</button>
                     )}
                     {showUpdateComponent && selectedBook && (
                         <div>
                             <Upd
                                 defaultAuthor={selectedBook.authors}
                                 defaultIsbn={selectedBook.isbn13}
-                                defaultTitle={selectedBook.title}
+                                defaultTitle={sanitizeTitle(selectedBook.title)}
                             />
-                            <button onClick={handleCloseUpdate}>Close Update</button>
                         </div>
                     )}
 
                     {deleteVisible && selectedBook && (
-                        <button onClick={() => handleDelete()}>Delete Book</button>
+                        <button  className ={styles}  onClick={() => handleDelete()}>Delete Book</button>
                     )}
 
                 </div>
             )}
-
 
             {error && <Alert severity="error">{error}</Alert>}
         </div>

@@ -256,3 +256,28 @@
 }.__className_42e952 {font-family: '__Roboto_42e952', '__Roboto_Fallback_42e952';font-style: normal
 }
 
+
+
+button {
+  display: flex;
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #007bff;
+  margin-left: 5px;
+  margin-top: 5px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  
+}
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  
+  
+}

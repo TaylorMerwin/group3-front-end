@@ -97,9 +97,6 @@ export default function AddBook() {
     <div>
       <form onSubmit={handleSubmit}>
         <Container>
-          {/* <Typography variant="h3" component="h1" align="center" gutterBottom sx={{ fontWeight: 'bold', mb: 2, }}>
-            Add a Book
-          </Typography> */}
           <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Add a Book</h1>
 
           <Box sx={{ flexGrow: 1, padding: 2 }}>
