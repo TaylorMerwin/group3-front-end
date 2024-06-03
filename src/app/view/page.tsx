@@ -73,10 +73,6 @@ function Home() {
         });
     };
 
-    const handleCloseUpdate = () => {
-        setShowUpdateComponent(false);
-    };
-
     const handleDelete = async () => {
         if (selectedBook) {
             console.log(`Deleting book with ISBN: ${selectedBook.isbn13}`);

@@ -30,6 +30,7 @@ function Home() {
 
     const options = [
         { value: "N/A", label: "N/A" },
+        { value: "0", label: "0" },
         { value: "1", label: "1" },
         { value: "2", label: "2" },
         { value: "3", label: "3" },
@@ -175,7 +176,7 @@ function Home() {
         if (event.target.value != "N/A") {
             setSearchMin(event.target.value);
         } else {
-            setSearchMin("1");
+            setSearchMin("0");
         }
     }
 
