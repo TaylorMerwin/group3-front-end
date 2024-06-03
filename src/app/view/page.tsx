@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import Upd from "src/app/update/page";
 import { Book } from '../../core/model/book';
+import FormGroup from '@mui/material/FormGroup';
+import FormHelperText from '@mui/material/FormHelperText';
 import { Box, Typography, Card, CardMedia, CardContent, Rating, TextField, Button, Alert } from '@mui/material';
 import styles from 'static/css/app/layout.css'
 function Home() {
@@ -96,40 +98,42 @@ function Home() {
     return (
         <div>
             <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>View Single Book</h1>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TextField
-                    type="text"
-                    name="author"
-                    placeholder="Search by author..."
-                    value={searchText.author}
-                    onChange={handleInputChange}
-                />
-                <TextField
-                    type="text"
-                    name="isbn"
-                    placeholder="Search by ISBN..."
-                    value={searchText.isbn}
-                    onChange={handleInputChange}
-                />
-                <TextField
-                    type="text"
-                    name="title"
-                    placeholder="Search by title..."
-                    value={searchText.title}
-                    onChange={handleInputChange}
-                />
-                <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    sx={{ padding: "25px" }}
-                    onClick={handleSearch}
-                    disabled={isSearchButtonDisabled}
-                >
-                    Submit
-                </Button>
-            </div>
+            <FormGroup style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TextField
+                        type="text"
+                        name="author"
+                        placeholder="Search by author..."
+                        value={searchText.author}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        type="text"
+                        name="isbn"
+                        placeholder="Search by ISBN..."
+                        value={searchText.isbn}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        type="text"
+                        name="title"
+                        placeholder="Search by title..."
+                        value={searchText.title}
+                        onChange={handleInputChange}
+                    />
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        size="small"
+                        sx={{ padding: "25px" }}
+                        onClick={handleSearch}
+                        disabled={isSearchButtonDisabled}
+                    >
+                        Submit
+                    </Button>
+                </div>
+                {isSearchButtonDisabled && <FormHelperText sx={{color: 'red'}}>Search using all 3 parameters!</FormHelperText>}
+            </FormGroup>
 
             {searchResults.length !== 0 && (
                 <div>
@@ -192,7 +196,7 @@ function Home() {
                         }
                     </ul>
                     {updateVisible && (
-                        <button onClick={() => setShowUpdateComponent(true)}>Open Update</button>
+                        <button onClick={() => setShowUpdateComponent(!showUpdateComponent)}>Update Book</button>
                     )}
                     {showUpdateComponent && selectedBook && (
                         <div>
@@ -201,7 +205,6 @@ function Home() {
                                 defaultIsbn={selectedBook.isbn13}
                                 defaultTitle={sanitizeTitle(selectedBook.title)}
                             />
-                            <button className ={styles} onClick={handleCloseUpdate}>Close Update</button>
                         </div>
                     )}
 
